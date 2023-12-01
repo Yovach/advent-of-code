@@ -2,7 +2,7 @@ use core::panic;
 use std::fs;
 
 // ([7,7] => 77, [8,5] => 85)
-fn concat_numbers(first_number: u32, last_number: u32) -> u32 {
+fn concat_numbers(first_number: &u32, last_number: &u32) -> u32 {
     return format!("{}{}", first_number, last_number).parse().unwrap();
 }
 
@@ -21,7 +21,7 @@ fn calculation_from_line(line: &str) -> u32 {
             let single_number = numbers
                 .get(0)
                 .expect("We except to retrieve at least one number");
-            return concat_numbers(single_number.clone(), single_number.clone());
+            return concat_numbers(single_number, single_number);
         }
         _ => {
             let first_number = numbers
@@ -30,7 +30,7 @@ fn calculation_from_line(line: &str) -> u32 {
             let last_number = numbers
                 .get(numbers.len() - 1)
                 .expect("We except to retrieve the last number");
-            return concat_numbers(first_number.clone(), last_number.clone());
+            return concat_numbers(first_number, last_number);
         }
     };
 }
