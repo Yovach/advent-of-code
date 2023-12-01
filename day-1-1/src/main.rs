@@ -1,7 +1,12 @@
 use core::panic;
 use std::fs;
 
-fn numbers_from_line(line: &str) -> Vec<u32> {
+// ([7,7] => 77, [8,5] => 85)
+fn concat_numbers(first_number: u32, last_number: u32) -> u32 {
+    return format!("{}{}", first_number, last_number).parse().unwrap();
+}
+
+fn calculation_from_line(line: &str) -> u32 {
     // Store all numbers from the line into a vec
     let mut numbers: Vec<u32> = Vec::new();
     line.chars().for_each(|char| {
@@ -16,7 +21,7 @@ fn numbers_from_line(line: &str) -> Vec<u32> {
             let single_number = numbers
                 .get(0)
                 .expect("We except to retrieve at least one number");
-            return vec![single_number.clone(), single_number.clone()];
+            return concat_numbers(single_number.clone(), single_number.clone());
         }
         _ => {
             let first_number = numbers
@@ -25,29 +30,16 @@ fn numbers_from_line(line: &str) -> Vec<u32> {
             let last_number = numbers
                 .get(numbers.len() - 1)
                 .expect("We except to retrieve the last number");
-            return vec![first_number.clone(), last_number.clone()];
+            return concat_numbers(first_number.clone(), last_number.clone());
         }
     };
-}
-
-// ([7,7] => 77, [8,5] => 85)
-fn concat_numbers(values: Vec<u32>) -> u32 {
-    let first_number = values
-        .get(0)
-        .expect("We except to retrieve the first number");
-    let last_number = values
-        .get(1)
-        .expect("We except to retrieve the second number");
-
-    return format!("{}{}", first_number, last_number).parse().unwrap();
 }
 
 fn main() {
     let contents = fs::read_to_string("real_input.txt").expect("The file can't be read");
     let calculations: Vec<_> = contents
         .split("\n")
-        .map(|msg| -> Vec<u32> { return numbers_from_line(msg) })
-        .map(|msg| -> u32 { return concat_numbers(msg) })
+        .map(|msg| -> u32 { return calculation_from_line(msg) })
         .collect();
 
     let total = calculations
