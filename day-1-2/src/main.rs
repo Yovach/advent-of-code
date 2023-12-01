@@ -1,8 +1,5 @@
 use core::panic;
-use std::{
-    collections::{hash_map, HashMap},
-    fs,
-};
+use std::{collections::HashMap, fs};
 
 // ([7,7] => 77, [8,5] => 85)
 fn concat_numbers(first_number: &u32, last_number: &u32) -> u32 {
@@ -54,7 +51,6 @@ fn search_for_spelled_number(line: &str) -> HashMap<usize, u32> {
 }
 
 fn calculation_from_line(line: &str) -> u32 {
-    println!("line : {line}");
     let mut store: HashMap<usize, u32> = HashMap::new();
     // Store all numbers from the line into a vec
     line.chars().enumerate().for_each(|(index, char)| {
@@ -66,32 +62,40 @@ fn calculation_from_line(line: &str) -> u32 {
     let spelled_store = search_for_spelled_number(line);
     store.extend(spelled_store);
 
-    println!("store : {:?}", store);
+    let mut keys: Vec<&usize> = store.keys().collect();
+    keys.sort();
 
-    return 0;
+    let mut numbers = Vec::new();
+    keys.iter().for_each(|key| {
+        numbers.push(
+            store
+                .get(key)
+                .expect("get value from key should return a number"),
+        );
+    });
 
-    // match numbers.len() {
-    //     0 => panic!("The line don't have any numbers"),
-    //     1 => {
-    //         let single_number = numbers
-    //             .get(0)
-    //             .expect("We except to retrieve at least one number");
-    //         return concat_numbers(single_number, single_number);
-    //     }
-    //     _ => {
-    //         let first_number = numbers
-    //             .get(0)
-    //             .expect("We except to retrieve the first number");
-    //         let last_number = numbers
-    //             .get(numbers.len() - 1)
-    //             .expect("We except to retrieve the last number");
-    //         return concat_numbers(first_number, last_number);
-    //     }
-    // };
+    match numbers.len() {
+        0 => panic!("The line don't have any numbers"),
+        1 => {
+            let single_number = numbers
+                .get(0)
+                .expect("We except to retrieve at least one number");
+            return concat_numbers(single_number, single_number);
+        }
+        _ => {
+            let first_number = numbers
+                .get(0)
+                .expect("We except to retrieve the first number");
+            let last_number = numbers
+                .get(numbers.len() - 1)
+                .expect("We except to retrieve the last number");
+            return concat_numbers(first_number, last_number);
+        }
+    };
 }
 
 fn main() {
-    let contents = fs::read_to_string("input.txt").expect("The file can't be read");
+    let contents = fs::read_to_string("real_input.txt").expect("The file can't be read");
     let total: u32 = contents
         .split("\n")
         .map(|msg| -> u32 { return calculation_from_line(msg) })
