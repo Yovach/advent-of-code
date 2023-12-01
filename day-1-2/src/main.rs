@@ -39,11 +39,7 @@ fn search_for_spelled_number(line: &str) -> HashMap<usize, u32> {
     spelled.into_iter().for_each(|num| {
         let indice: Vec<_> = line.match_indices(num).collect();
         indice.iter().for_each(|result| {
-            // println!("result: {:?}", result);
-            let index = result.0;
-            let value = result.1;
-            // println!("index: {:?}, value: {:?}", index, value);
-            store.insert(index, splelled_number_to_number(value).unwrap());
+            store.insert(result.0, splelled_number_to_number(result.1).unwrap());
         })
     });
 
@@ -59,8 +55,7 @@ fn calculation_from_line(line: &str) -> u32 {
         }
     });
 
-    let spelled_store = search_for_spelled_number(line);
-    store.extend(spelled_store);
+    store.extend(search_for_spelled_number(line));
 
     let mut keys: Vec<&usize> = store.keys().collect();
     keys.sort();
