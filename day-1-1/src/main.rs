@@ -37,13 +37,9 @@ fn calculation_from_line(line: &str) -> u32 {
 
 fn main() {
     let contents = fs::read_to_string("real_input.txt").expect("The file can't be read");
-    let calculations: Vec<_> = contents
+    let total: u32 = contents
         .split("\n")
         .map(|msg| -> u32 { return calculation_from_line(msg) })
-        .collect();
-
-    let total = calculations
-        .iter()
         .fold(0, |previous, current| -> u32 { return previous + current });
 
     println!("total: {:?}", total);
