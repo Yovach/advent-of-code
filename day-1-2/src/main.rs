@@ -60,14 +60,11 @@ fn calculation_from_line(line: &str) -> u32 {
     let mut keys: Vec<&usize> = store.keys().collect();
     keys.sort();
 
-    let mut numbers = Vec::new();
-    keys.iter().for_each(|key| {
-        numbers.push(
-            store
-                .get(key)
-                .expect("get value from key should return a number"),
-        );
-    });
+    let numbers: Vec<_> = keys.iter().map(|key| {
+        store
+            .get(key)
+            .expect("get value from key should return a number")
+    }).collect();
 
     match numbers.len() {
         0 => panic!("The line don't have any numbers"),
