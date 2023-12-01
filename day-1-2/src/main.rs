@@ -47,7 +47,7 @@ fn search_for_spelled_number(line: &str) -> HashMap<usize, u32> {
 }
 
 fn calculation_from_line(line: &str) -> u32 {
-    let mut store: HashMap<usize, u32> = HashMap::new();
+    let mut store = search_for_spelled_number(line);
     // Store all numbers from the line into a vec
     line.chars().enumerate().for_each(|(index, char)| {
         if char.is_numeric() {
@@ -55,16 +55,17 @@ fn calculation_from_line(line: &str) -> u32 {
         }
     });
 
-    store.extend(search_for_spelled_number(line));
-
     let mut keys: Vec<&usize> = store.keys().collect();
     keys.sort();
 
-    let numbers: Vec<_> = keys.iter().map(|key| {
-        store
-            .get(key)
-            .expect("get value from key should return a number")
-    }).collect();
+    let numbers: Vec<_> = keys
+        .iter()
+        .map(|key| {
+            store
+                .get(key)
+                .expect("get value from key should return a number")
+        })
+        .collect();
 
     match numbers.len() {
         0 => panic!("The line don't have any numbers"),
