@@ -10,22 +10,24 @@ fn numbers_from_line(line: &str) -> Vec<u32> {
         }
     });
 
-    if numbers.len() == 0 {
-        panic!("The line don't have any numbers");
-    } else if numbers.len() == 1 {
-        let single_number = numbers
-            .get(0)
-            .expect("We except to retrieve at least one number");
-        return vec![single_number.clone(), single_number.clone()];
-    }
-
-    let first_number = numbers
-        .get(0)
-        .expect("We except to retrieve the first number");
-    let last_number = numbers
-        .get(numbers.len() - 1)
-        .expect("We except to retrieve the last number");
-    return vec![first_number.clone(), last_number.clone()];
+    match numbers.len() {
+        0 => panic!("The line don't have any numbers"),
+        1 => {
+            let single_number = numbers
+                .get(0)
+                .expect("We except to retrieve at least one number");
+            return vec![single_number.clone(), single_number.clone()];
+        }
+        _ => {
+            let first_number = numbers
+                .get(0)
+                .expect("We except to retrieve the first number");
+            let last_number = numbers
+                .get(numbers.len() - 1)
+                .expect("We except to retrieve the last number");
+            return vec![first_number.clone(), last_number.clone()];
+        }
+    };
 }
 
 // ([7,7] => 77, [8,5] => 85)
