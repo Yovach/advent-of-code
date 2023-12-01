@@ -33,6 +33,26 @@ fn splelled_number_to_number(value: &str) -> Option<u32> {
     }
 }
 
+fn search_for_spelled_number(line: &str) -> HashMap<usize, u32> {
+    let spelled = vec![
+        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    ];
+
+    let mut store: HashMap<usize, u32> = HashMap::new();
+    spelled.into_iter().for_each(|num| {
+        let indice: Vec<_> = line.match_indices(num).collect();
+        indice.iter().for_each(|result| {
+            // println!("result: {:?}", result);
+            let index = result.0;
+            let value = result.1;
+            // println!("index: {:?}, value: {:?}", index, value);
+            store.insert(index, splelled_number_to_number(value).unwrap());
+        })
+    });
+
+    return store;
+}
+
 fn calculation_from_line(line: &str) -> u32 {
     println!("line : {line}");
     let mut store: HashMap<usize, u32> = HashMap::new();
@@ -42,6 +62,9 @@ fn calculation_from_line(line: &str) -> u32 {
             store.insert(index, char.to_digit(10).unwrap());
         }
     });
+
+    let spelled_store = search_for_spelled_number(line);
+    store.extend(spelled_store);
 
     println!("store : {:?}", store);
 
