@@ -30,7 +30,7 @@ fn splelled_number_to_number(value: &str) -> Option<u32> {
     }
 }
 
-fn search_for_spelled_number(line: &str) -> HashMap<usize, u32> {
+fn get_store_with_spelled_numbers(line: &str) -> HashMap<usize, u32> {
     let spelled = vec![
         "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     ];
@@ -47,7 +47,7 @@ fn search_for_spelled_number(line: &str) -> HashMap<usize, u32> {
 }
 
 fn calculation_from_line(line: &str) -> u32 {
-    let mut store = search_for_spelled_number(line);
+    let mut store = get_store_with_spelled_numbers(line);
     // Store all numbers from the line into a vec
     line.chars().enumerate().for_each(|(index, char)| {
         if char.is_numeric() {
@@ -71,16 +71,16 @@ fn calculation_from_line(line: &str) -> u32 {
         0 => panic!("The line don't have any numbers"),
         1 => {
             let single_number = numbers
-                .get(0)
+                .first()
                 .expect("We except to retrieve at least one number");
             return concat_numbers(single_number, single_number);
         }
         _ => {
             let first_number = numbers
-                .get(0)
+                .first()
                 .expect("We except to retrieve the first number");
             let last_number = numbers
-                .get(numbers.len() - 1)
+                .last()
                 .expect("We except to retrieve the last number");
             return concat_numbers(first_number, last_number);
         }
@@ -90,9 +90,9 @@ fn calculation_from_line(line: &str) -> u32 {
 fn main() {
     let contents = fs::read_to_string("real_input.txt").expect("The file can't be read");
     let total: u32 = contents
-        .split("\n")
-        .map(|msg| -> u32 { return calculation_from_line(msg) })
-        .fold(0, |previous, current| -> u32 { return previous + current });
+        .lines()
+        .map(|msg| calculation_from_line(msg))
+        .fold(0, |previous, current| previous + current);
 
     println!("total: {:?}", total);
 }
