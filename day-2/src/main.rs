@@ -16,7 +16,7 @@ fn sum_cube_sets_count(cube_sets: Vec<&str>) -> HashMap<&str, u32> {
     for cube_set in cube_sets {
         let cubes: Vec<&str> = cube_set.split(",").map(|cube| cube.trim()).collect();
 
-        println!("cube_set : {:?}", cube_set);
+        // println!("cube_set : {:?}", cube_set);
         for cube in cubes {
             let cubes_data: Vec<&str> = cube.split(" ").collect();
             let cube_nb = cubes_data
@@ -26,7 +26,7 @@ fn sum_cube_sets_count(cube_sets: Vec<&str>) -> HashMap<&str, u32> {
                 .unwrap();
             let cube_color = cubes_data.last().expect("expected a color");
 
-            println!("color {:?} with quantity {:?}", cube_color, cube_nb);
+            // println!("color {:?} with quantity {:?}", cube_color, cube_nb);
             store
                 .entry(cube_color)
                 .and_modify(|value| *value += cube_nb)
@@ -34,7 +34,7 @@ fn sum_cube_sets_count(cube_sets: Vec<&str>) -> HashMap<&str, u32> {
         }
     }
 
-    println!("store : {:?}", store);
+    // println!("store : {:?}", store);
 
     return store;
 }
@@ -50,17 +50,28 @@ fn parse_game_data(game: &str) -> (u32, Vec<&str>, HashMap<&str, u32>) {
     let game_id = get_game_id(data_chunks.first().expect("a ID for the game is expected"));
     let cube_sets = get_cube_chunks(data_chunks.last().expect("a chunks with cube sets"));
 
+    println!("game_id: {:?}, cube_sets: {:?}", game_id, cube_sets);
+
     let cube_counts = sum_cube_sets_count(cube_sets.clone());
     return (game_id, cube_sets, cube_counts);
 }
 
 fn main() {
-    let contents = fs::read_to_string("input.txt").expect("The file can't be read");
+    let contents = fs::read_to_string("real_input.txt").expect("The file can't be read");
     let games: Vec<&str> = contents.lines().collect();
 
+    let mut game_ids_sum = 0;
     for game in &games {
         let (game_id, cube_sets, cube_counts) = parse_game_data(game);
-        println!("");
-        // println!("game_id: {:?}, cube_counts: {:?}", game_id, cube_counts);
+        println!("game_id: {:?}, cube_counts: {:?}", game_id, cube_counts);
+        let nb_red: u32 = cube_counts.get("red").unwrap_or(&0).clone();
+        let nb_green: u32 = cube_counts.get("green").unwrap_or(&0).clone();
+        let nb_blue: u32 = cube_counts.get("blue").unwrap_or(&0).clone();
+
+        if nb_red == 12 && nb_green == 13 && nb_blue == 14 {
+            game_ids_sum += game_id;
+        }
     }
+
+    println!("game ids sum : {:?}", game_ids_sum);
 }
