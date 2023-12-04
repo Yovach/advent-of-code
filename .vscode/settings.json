@@ -4,6 +4,7 @@
     "./day-1/day-1-2/Cargo.toml",
     "./day-2/part-1/Cargo.toml",
     "./day-2/part-2/Cargo.toml",
-    "./day-3/part-1/Cargo.toml"
+    "./day-3/part-1/Cargo.toml",
+    "./day-4/part-1/Cargo.toml"
   ]
 }
