@@ -25,10 +25,10 @@ fn items_from_lines(lines: Lines<'_>) -> Vec<Cell> {
 
 fn get_neighbours(items: &Vec<Cell>, target: &Cell, distance: usize) -> Vec<Cell> {
     let mut neighbours: Vec<Cell> = Vec::new();
-    for (index, item) in items.iter().enumerate() {
+    for item in items {
         let difference_x = item.position.0.abs_diff(target.position.0);
         let difference_y = item.position.1.abs_diff(target.position.1);
-        if difference_x <= distance && difference_y <= distance {
+        if difference_x <= distance && difference_y <= distance && (difference_x + difference_y > 0) {
             neighbours.push(item.clone());
         }
     }
@@ -39,11 +39,10 @@ fn get_neighbours(items: &Vec<Cell>, target: &Cell, distance: usize) -> Vec<Cell
 fn parse_lines(lines: Lines<'_>) {
     let items = items_from_lines(lines);
     for (index, item) in items.iter().enumerate() {
-        if index == 26 {
-            println!("neigbours : {:?}", get_neighbours(&items, item, 1));
-            println!("neigbours : {:?}", get_neighbours(&items, item, 2));
+        if index == 1 {
+            let neighbours = get_neighbours(&items, item, 1);
+            println!("neighbours of {:?} : {:?}", index, neighbours);
         }
-        println!("item: {:?}", item.value);
     }
 
     // println!("numbers: {:?}", numbers);
