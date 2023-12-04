@@ -1,10 +1,10 @@
-use std::{collections::HashMap, fs};
+use std::fs;
 
 fn main() {
     let contents = fs::read_to_string("./input.txt").expect("i should read the file");
     let lines = contents.lines();
 
-    let cards: HashMap<u32, Vec<u32>> = HashMap::new();
+    let mut total_pts = 0;
     for line in lines {
         let card_data: Vec<&str> = line.split(":").collect();
         let card_id: u32 = card_data
@@ -38,11 +38,22 @@ fn main() {
             .filter(|number| !number.is_empty())
             .map(|number| number.parse::<u32>().unwrap())
             .collect();
+
+        let mut card_pts = 0;
+
+        for played_number in played_numbers.iter() {
+            if winning_numbers.contains(played_number) {
+                card_pts = card_pts + 2
+            }
+        }
+
+        total_pts += card_pts;
+
         println!(
-            "card id : {:?}, winning: {:?}, played: {:?}",
-            card_id, winning_numbers, played_numbers
+            "card id : {:?}, winning: {:?}, played: {:?}, pts: {:?}",
+            card_id, winning_numbers, played_numbers, card_pts
         )
     }
 
-    println!("Hello, world!");
+    println!("total: {:?}", total_pts);
 }
