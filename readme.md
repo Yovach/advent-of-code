@@ -12,4 +12,6 @@ Advent of Code 2023
   - **Part 1** : not yet
 
 # Day 4
+  - **Part 1**: ok
+  - **Part 2**: not ok (need to learn more about changes in arrays while iterating)
 
