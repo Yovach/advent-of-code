@@ -2,14 +2,12 @@ use std::fs;
 
 fn main() {
     let contents = fs::read_to_string("./real_input.txt").expect("i should read the file");
-    let lines: Vec<&str> = contents.lines().collect();
-
-    let mut cards: Vec<&str> = lines.clone();
+    let lines = contents.lines();
 
     let mut total_pts = 0;
-    for line in cards {
+    for line in lines {
         let card_data: Vec<&str> = line.split(":").collect();
-        let card_id: usize = card_data
+        let card_id: u32 = card_data
             .first()
             .unwrap()
             .split(" ")
@@ -43,17 +41,16 @@ fn main() {
 
         let mut card_pts = 0;
 
+        let mut matches = 0;
         for played_number in played_numbers.iter() {
             if winning_numbers.contains(played_number) {
-                card_pts += 1;
-            }
-        }
+                if matches == 0 {
+                    card_pts += 1;
+                } else {
+                    card_pts *= 2
+                }
 
-        let next_card_id: usize = card_id + 1;
-
-        if let Some(next_cards) = lines.get(next_card_id) {
-            for _n in 0..=card_pts {
-                cards.push(next_cards);
+                matches += 1;
             }
         }
 
