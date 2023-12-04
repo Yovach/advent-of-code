@@ -41,18 +41,22 @@ fn main() {
 
         let mut card_pts = 0;
 
+        let mut matches = 0;
         for played_number in played_numbers.iter() {
             if winning_numbers.contains(played_number) {
-                card_pts = card_pts + 2
+                if matches == 0 {
+                    card_pts += 1;
+                } else {
+                    card_pts *= 2
+                }
+
+                matches += 1;
             }
         }
 
         total_pts += card_pts;
 
-        println!(
-            "card id : {:?}, winning: {:?}, played: {:?}, pts: {:?}",
-            card_id, winning_numbers, played_numbers, card_pts
-        )
+        println!("card id : {:?}, pts: {:?}", card_id, card_pts)
     }
 
     println!("total: {:?}", total_pts);
