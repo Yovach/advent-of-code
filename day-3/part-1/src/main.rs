@@ -24,8 +24,8 @@ fn items_from_lines(lines: Lines<'_>) -> Vec<Cell> {
 }
 
 fn get_numbers_with_positions(items: &Vec<Cell>) {
-    // let mut numbers_list: HashMap<Position, u32> = HashMap::new();
-    let mut numbers_list: Vec<String> = Vec::new();
+    let mut numbers_list: Vec<(Position, String)> = Vec::new();
+    // let mut numbers_list: Vec<String> = Vec::new();
 
     let mut previous_cell: Option<&Cell> = Option::None;
     let mut current_number = "".to_string();
@@ -35,7 +35,7 @@ fn get_numbers_with_positions(items: &Vec<Cell>) {
                 current_number.push_str(item.value.to_string().as_str())
             } else {
                 if previous_cell.unwrap().position.0 > item.position.0 {
-                    numbers_list.push(current_number.clone());
+                    numbers_list.push((item.position.clone(), current_number.clone()));
                     current_number = "".to_string();
                     continue;
                 } else if previous_cell.unwrap().position.0 == (item.position.0 - 1) {
@@ -59,7 +59,7 @@ fn get_numbers_with_positions(items: &Vec<Cell>) {
                 // }
             }
         } else {
-            numbers_list.push(current_number.clone());
+            numbers_list.push((item.position.clone(), current_number.clone()));
             current_number = "".to_string();
         }
         previous_cell = Option::Some(item);
