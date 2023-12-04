@@ -1,7 +1,7 @@
 use std::fs;
 
 fn main() {
-    let contents = fs::read_to_string("./input.txt").expect("i should read the file");
+    let contents = fs::read_to_string("./real_input.txt").expect("i should read the file");
     let lines = contents.lines();
 
     let mut total_pts = 0;
