@@ -1,14 +1,14 @@
 use std::{collections::HashMap, fs, ops::Add};
 
-#[derive(Debug)]
+#[derive(Debug, Eq, Hash, PartialEq, Copy, Clone)]
 enum Category {
-    SEED_TO_SOIL,
-    SOIL_TO_FERTILIZER,
-    FERTILIZER_TO_WATER,
-    WATER_TO_LIGHT,
-    LIGHT_TO_TEMPERATURE,
-    TEMPERATURE_TO_HUMIDITY,
-    HUMIDITY_TO_LOCATION,
+    SeedToSoil,
+    SoilToFertilizer,
+    FertilizerToWater,
+    WaterToLight,
+    LightToTemperature,
+    TemperatureToHumidity,
+    HumidityToLocation,
 }
 
 fn main() {
@@ -16,49 +16,53 @@ fn main() {
         fs::read_to_string("./input.txt").expect("i should be able to read this file");
     let lines: Vec<&str> = file_content.lines().collect();
 
-    let categories_store: HashMap<Category, HashMap<u32, u32>> = HashMap::new();
-    let mut lastCategory: Option<Category> = None;
+    let mut categories_store: HashMap<Category, HashMap<u32, u32>> = HashMap::new();
+    let mut last_category: Option<Category> = None;
 
     for line in &lines {
         if line.starts_with("seed-to-soil map") {
-            lastCategory = Some(Category::SEED_TO_SOIL);
+            last_category = Some(Category::SeedToSoil);
         } else if line.starts_with("soil-to-fertilizer map") {
-            lastCategory = Some(Category::SOIL_TO_FERTILIZER);
+            last_category = Some(Category::SoilToFertilizer);
         } else if line.starts_with("fertilizer-to-water map") {
-            lastCategory = Some(Category::FERTILIZER_TO_WATER);
+            last_category = Some(Category::FertilizerToWater);
         } else if line.starts_with("water-to-light map") {
-            lastCategory = Some(Category::WATER_TO_LIGHT);
+            last_category = Some(Category::WaterToLight);
         } else if line.starts_with("light-to-temperature map") {
-            lastCategory = Some(Category::LIGHT_TO_TEMPERATURE);
+            last_category = Some(Category::LightToTemperature);
         } else if line.starts_with("temperature-to-humidity map") {
-            lastCategory = Some(Category::TEMPERATURE_TO_HUMIDITY);
+            last_category = Some(Category::TemperatureToHumidity);
         } else if line.starts_with("humidity-to-location map") {
-            lastCategory = Some(Category::HUMIDITY_TO_LOCATION);
-        } else if !line.is_empty() && lastCategory.is_some() {
+            last_category = Some(Category::HumidityToLocation);
+        } else if !line.is_empty() && last_category.is_some() {
+            let category = last_category.expect("i expected a category");
+            let stored_category = categories_store.entry(category).or_insert(HashMap::new());
+            
             let elements: Vec<&str> = line.split(" ").collect();
-            if elements.len() == 3 {
-                let destination = elements
-                    .get(0)
-                    .expect("i expected a `destination` value")
-                    .parse::<u32>()
-                    .expect("i expected a u32 for `destination` value");
-                let source = elements
-                    .get(1)
-                    .expect("i expected a `source` value")
-                    .parse::<u32>()
-                    .expect("i expected a u32 for `source` value");
-                let range = elements
-                    .get(2)
-                    .expect("i expected a `range` value")
-                    .parse::<u32>()
-                    .expect("i expected a u32 for `range` value");
+            let destination = elements
+                .get(0)
+                .expect("i expected a `destination` value")
+                .parse::<u32>()
+                .expect("i expected a u32 for `destination` value");
+            let source = elements
+                .get(1)
+                .expect("i expected a `source` value")
+                .parse::<u32>()
+                .expect("i expected a u32 for `source` value");
+            let range = elements
+                .get(2)
+                .expect("i expected a `range` value")
+                .parse::<u32>()
+                .expect("i expected a u32 for `range` value");
 
-                println!("\ncategory: {:?}", lastCategory);
-                for i in 0..range {
-                    println!("seed: {:?} => soil {:?}", source.add(i), destination.add(i));
-                    // println!("range: {:?}", i);
-                }
+            println!("\ncategory: {:?}", category);
+            for i in 0..range {
+                // println!("seed: {:?} => soil {:?}", source.add(i), destination.add(i));
+                stored_category.insert(source.add(i), destination.add(i));
+                // println!("range: {:?}", i);
             }
+
+            println!("category: {:?}", stored_category);
         }
     }
 
