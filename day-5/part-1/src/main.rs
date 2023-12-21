@@ -26,11 +26,26 @@ fn get_destination_id(
     let retrieved_cat = store.get(&category).expect("i expected a category");
     let destination = retrieved_cat.get(&source);
 
-    println!("{:?}", destination);
-
     if destination.is_some() {
         return destination.unwrap().0;
     }
+
+    let mut nearest_key: Option<&(u32, u32)> = None;
+    for k in (0..source).rev() {
+        let nearest_source = retrieved_cat.get(&k);
+        if nearest_source.is_some() {
+            nearest_key = Some(nearest_source.unwrap());
+            break;
+        }
+    }
+
+    // si on a pas de clés proche, alors source = destination
+    if nearest_key.is_none() {
+        return source;
+    }
+
+    println!("nearest key : {:?} for {source}", nearest_key);
+
     return 0;
 }
 
