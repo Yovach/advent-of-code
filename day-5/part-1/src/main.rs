@@ -139,12 +139,23 @@ fn main() {
                                 if seed_id.eq(&79) {
                                     println!("Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}, humidity {:?}, location {:?}", seed_id, soil_id, fertilizer, water, light, temperature, humidity, location)
                                 }
+                            } else {
+                                println!("i maybe have a problem here, humidity {:?}", humidity)
                             }
+                        } else {
+                            println!("i maybe have a problem here, temperature {:?}", temperature)
                         }
+                    } else {
+                        println!("i maybe have a problem here, light {:?}", light)
                     }
+                } else {
+                    println!("i maybe have a problem here, water {:?}", water)
                 }
+            } else {
+                println!("i maybe have a problem here, fertilizer {:?}", fertilizer)
             }
-            // println!("fertilize: {:?} with soil {:?}", fertilizer, soil_id);
+        } else {
+            println!("i maybe have a problem here, soil {:?}", soil_id)
         }
     }
 
