@@ -86,7 +86,67 @@ fn main() {
         // println!("max {:?} for category {:?}", max_key, category);
     }
 
-    println!("categories : {:?}", categories_store.get(&Category::SeedToSoil).unwrap());
+    let mut min_location = &u32::MAX;
 
-    // println!("{:?}", lines);
+    println!("min location: {:?}", min_location);
+
+    for (seed_id, soil_id) in categories_store.get(&Category::SeedToSoil).unwrap() {
+        let fertilizer_result = categories_store
+            .get(&Category::SoilToFertilizer)
+            .expect("i expected a fertilizer cat")
+            .get(soil_id);
+        if fertilizer_result.is_some() {
+            let fertilizer = fertilizer_result.unwrap();
+            let water_result = categories_store
+                .get(&Category::FertilizerToWater)
+                .expect("i expected a water cat")
+                .get(fertilizer);
+            if water_result.is_some() {
+                let water = water_result.unwrap();
+                let light_result = categories_store
+                    .get(&Category::WaterToLight)
+                    .expect("i expected a light cat")
+                    .get(water);
+
+                if light_result.is_some() {
+                    let light = light_result.unwrap();
+                    let temperature_result = categories_store
+                        .get(&Category::WaterToLight)
+                        .expect("i expected a light cat")
+                        .get(light);
+
+                    if temperature_result.is_some() {
+                        let temperature = temperature_result.unwrap();
+                        let humidity_result = categories_store
+                            .get(&Category::WaterToLight)
+                            .expect("i expected a temperature cat")
+                            .get(temperature);
+
+                        if temperature_result.is_some() {
+                            let humidity = humidity_result.unwrap();
+                            let location_result = categories_store
+                                .get(&Category::WaterToLight)
+                                .expect("i expected a humidity cat")
+                                .get(humidity);
+
+                            if location_result.is_some() {
+                                let location = location_result.unwrap();
+                                println!("location: {:?}", location);
+                                if location.le(min_location) {
+                                    min_location = location;
+                                }
+
+                                if seed_id.eq(&79) {
+                                    println!("Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}, humidity {:?}, location {:?}", seed_id, soil_id, fertilizer, water, light, temperature, humidity, location)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // println!("fertilize: {:?} with soil {:?}", fertilizer, soil_id);
+        }
+    }
+
+    println!("{:?}", min_location);
 }
