@@ -19,6 +19,8 @@ fn main() {
     let mut parsed_categories: HashMap<Category, HashMap<u32, u32>> = HashMap::new();
     let mut last_category: Option<Category> = None;
 
+    let mut planted_seets: Vec<&str> = Vec::new();
+
     for line in &lines {
         if line.starts_with("seed-to-soil map") {
             last_category = Some(Category::SeedToSoil);
@@ -58,7 +60,12 @@ fn main() {
             // println!("\ncategory: {:?}", category);
             for i in 0..range {
                 // println!("seed: {:?} => soil {:?}", source.add(i), destination.add(i));
-                stored_category.insert(source.add(i), destination.add(i));
+                stored_category
+                    .entry(source.add(i))
+                    .and_modify(|des| {
+                        *des = destination + i;
+                    })
+                    .or_insert(destination.add(i));
                 // println!("range: {:?}", i);
             }
 
@@ -66,31 +73,34 @@ fn main() {
         }
     }
 
+    let mut max_key = &0;
     let mut categories_store: HashMap<Category, HashMap<u32, u32>> = parsed_categories.clone();
     for (category, store) in parsed_categories.iter() {
+        store.keys().for_each(|key| {
+            if max_key.le(key) {
+                max_key = key;
+            }
+        });
         categories_store
             .entry(category.clone())
             .and_modify(|mapping| {
-                let mut max_key = 0;
-                store.keys().for_each(|key| {
-                    if max_key.le(key) {
-                        max_key = key.clone();
-                    }
-                });
-
-                for i in 0..max_key {
-                    mapping.entry(i).or_insert(i);
+                for i in 0..max_key.clone() {
+                    mapping.entry(i).or_insert_with(|| i);
                 }
             });
 
         // println!("max {:?} for category {:?}", max_key, category);
     }
 
+    // println!("categories: {:?}", categories_store);
+
     let mut min_location = &u32::MAX;
 
-    println!("min location: {:?}", min_location);
+    // println!("min location: {:?}", min_location);
 
     for (seed_id, soil_id) in categories_store.get(&Category::SeedToSoil).unwrap() {
+        // println!("seed: {:?}, soil: {:?}", seed_id, soil_id);
+
         let fertilizer_result = categories_store
             .get(&Category::SoilToFertilizer)
             .expect("i expected a fertilizer cat")
@@ -111,27 +121,27 @@ fn main() {
                 if light_result.is_some() {
                     let light = light_result.unwrap();
                     let temperature_result = categories_store
-                        .get(&Category::WaterToLight)
-                        .expect("i expected a light cat")
+                        .get(&Category::LightToTemperature)
+                        .expect("i expected a temperature cat")
                         .get(light);
 
                     if temperature_result.is_some() {
                         let temperature = temperature_result.unwrap();
                         let humidity_result = categories_store
-                            .get(&Category::WaterToLight)
-                            .expect("i expected a temperature cat")
+                            .get(&Category::TemperatureToHumidity)
+                            .expect("i expected a humidity cat")
                             .get(temperature);
 
-                        if temperature_result.is_some() {
+                        if humidity_result.is_some() {
                             let humidity = humidity_result.unwrap();
                             let location_result = categories_store
-                                .get(&Category::WaterToLight)
-                                .expect("i expected a humidity cat")
+                                .get(&Category::HumidityToLocation)
+                                .expect("i expected a location cat")
                                 .get(humidity);
 
                             if location_result.is_some() {
                                 let location = location_result.unwrap();
-                                println!("location: {:?}", location);
+                                // println!("location: {:?}", location);
                                 if location.le(min_location) {
                                     min_location = location;
                                 }
@@ -140,22 +150,28 @@ fn main() {
                                     println!("Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}, humidity {:?}, location {:?}", seed_id, soil_id, fertilizer, water, light, temperature, humidity, location)
                                 }
                             } else {
-                                println!("i maybe have a problem here, humidity {:?}", humidity)
+                                println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}, humidity {:?}", seed_id, soil_id, fertilizer, water, light, temperature, humidity)
                             }
                         } else {
-                            println!("i maybe have a problem here, temperature {:?}", temperature)
+                            println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}", seed_id, soil_id, fertilizer, water, light, temperature)
                         }
                     } else {
-                        println!("i maybe have a problem here, light {:?}", light)
+                        println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}", seed_id, soil_id, fertilizer, water, light)
                     }
                 } else {
-                    println!("i maybe have a problem here, water {:?}", water)
+                    println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}", seed_id, soil_id, fertilizer, water)
                 }
             } else {
-                println!("i maybe have a problem here, fertilizer {:?}", fertilizer)
+                println!(
+                    "i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}",
+                    seed_id, soil_id, fertilizer
+                )
             }
         } else {
-            println!("i maybe have a problem here, soil {:?}", soil_id)
+            println!(
+                "i maybe have a problem here, Seed {:?}, soil {:?}",
+                seed_id, soil_id
+            )
         }
     }
 
