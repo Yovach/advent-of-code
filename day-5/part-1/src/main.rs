@@ -19,10 +19,25 @@ fn main() {
     let mut parsed_categories: HashMap<Category, HashMap<u32, u32>> = HashMap::new();
     let mut last_category: Option<Category> = None;
 
-    let mut planted_seets: Vec<&str> = Vec::new();
+    let mut planted_seets: Vec<u32> = Vec::new();
 
     for line in &lines {
-        if line.starts_with("seed-to-soil map") {
+        if line.starts_with("seeds:") {
+            let line_parts: Vec<&str> = line.split("seeds:").collect();
+            if line_parts.len() == 2 {
+                line_parts
+                    .get(1)
+                    .expect("i expected seeds")
+                    .split(" ")
+                    .filter(|val| !val.is_empty())
+                    .map(|val| {
+                        return val.trim().parse::<u32>().unwrap();
+                    })
+                    .for_each(|value| {
+                        planted_seets.push(value);
+                    })
+            }
+        } else if line.starts_with("seed-to-soil map") {
             last_category = Some(Category::SeedToSoil);
         } else if line.starts_with("soil-to-fertilizer map") {
             last_category = Some(Category::SoilToFertilizer);
@@ -97,6 +112,7 @@ fn main() {
     let mut min_location = &u32::MAX;
 
     // println!("min location: {:?}", min_location);
+    println!("planted seeds: {:?}", planted_seets);
 
     for (seed_id, soil_id) in categories_store.get(&Category::SeedToSoil).unwrap() {
         // println!("seed: {:?}, soil: {:?}", seed_id, soil_id);
@@ -142,36 +158,37 @@ fn main() {
                             if location_result.is_some() {
                                 let location = location_result.unwrap();
                                 // println!("location: {:?}", location);
-                                if location.le(min_location) {
-                                    min_location = location;
-                                }
 
-                                if seed_id.eq(&79) {
-                                    println!("Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}, humidity {:?}, location {:?}", seed_id, soil_id, fertilizer, water, light, temperature, humidity, location)
+                                if planted_seets.contains(seed_id) {
+                                    println!("Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}, humidity {:?}, location {:?}", seed_id, soil_id, fertilizer, water, light, temperature, humidity, location);
+
+                                    if location.le(min_location) {
+                                        min_location = location;
+                                    }
                                 }
                             } else {
-                                println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}, humidity {:?}", seed_id, soil_id, fertilizer, water, light, temperature, humidity)
+                                // println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}, humidity {:?}", seed_id, soil_id, fertilizer, water, light, temperature, humidity)
                             }
                         } else {
-                            println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}", seed_id, soil_id, fertilizer, water, light, temperature)
+                            // println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}", seed_id, soil_id, fertilizer, water, light, temperature)
                         }
                     } else {
-                        println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}", seed_id, soil_id, fertilizer, water, light)
+                        // println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}", seed_id, soil_id, fertilizer, water, light)
                     }
                 } else {
-                    println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}", seed_id, soil_id, fertilizer, water)
+                    // println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}", seed_id, soil_id, fertilizer, water)
                 }
             } else {
-                println!(
-                    "i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}",
-                    seed_id, soil_id, fertilizer
-                )
+                // println!(
+                //     "i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}",
+                //     seed_id, soil_id, fertilizer
+                // )
             }
         } else {
-            println!(
-                "i maybe have a problem here, Seed {:?}, soil {:?}",
-                seed_id, soil_id
-            )
+            // println!(
+            //     "i maybe have a problem here, Seed {:?}, soil {:?}",
+            //     seed_id, soil_id
+            // )
         }
     }
 
