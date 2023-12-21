@@ -18,19 +18,35 @@ fn try_parse_u32(value: Option<&&str>) -> u32 {
         .expect("i expected a u32");
 }
 
+fn get_destination_id(
+    store: &HashMap<Category, HashMap<u32, (u32, u32)>>,
+    category: Category,
+    source: u32,
+) -> u32 {
+    let retrieved_cat = store.get(&category).expect("i expected a category");
+    let destination = retrieved_cat.get(&source);
+
+    println!("{:?}", destination);
+
+    if destination.is_some() {
+        return destination.unwrap().0;
+    }
+    return 0;
+}
+
 fn main() {
     let file_content =
-        fs::read_to_string("./real_input.txt").expect("i should be able to read this file");
+        fs::read_to_string("./input.txt").expect("i should be able to read this file");
     let lines: Vec<&str> = file_content.lines().collect();
 
     let category_mappings = HashMap::from([
         ("seed-to-soil", Category::SeedToSoil),
-        ("soil-to-fertilizer", Category::SeedToSoil),
-        ("fertilizer-to-water", Category::SeedToSoil),
-        ("water-to-light", Category::SeedToSoil),
-        ("light-to-temperature", Category::SeedToSoil),
-        ("temperature-to-humidity", Category::SeedToSoil),
-        ("humidity-to-location", Category::SeedToSoil),
+        ("soil-to-fertilizer", Category::SoilToFertilizer),
+        ("fertilizer-to-water", Category::FertilizerToWater),
+        ("water-to-light", Category::WaterToLight),
+        ("light-to-temperature", Category::LightToTemperature),
+        ("temperature-to-humidity", Category::TemperatureToHumidity),
+        ("humidity-to-location", Category::HumidityToLocation),
     ]);
 
     let mut parsed_categories: HashMap<Category, HashMap<u32, (u32, u32)>> = HashMap::from([
@@ -42,9 +58,9 @@ fn main() {
         (Category::TemperatureToHumidity, HashMap::new()),
         (Category::HumidityToLocation, HashMap::new()),
     ]);
-    let mut last_category: Option<Category> = None;
 
-    let mut planted_seets: Vec<u32> = Vec::new();
+    let mut last_category: Option<Category> = None;
+    let mut planted_seeds: Vec<u32> = Vec::new();
 
     for line in &lines {
         if line.starts_with("seeds:") {
@@ -54,12 +70,8 @@ fn main() {
                 .expect("i expected seeds")
                 .split(" ")
                 .filter(|val| !val.is_empty())
-                .map(|val| {
-                    return val.trim().parse::<u32>().unwrap();
-                })
-                .for_each(|value| {
-                    planted_seets.push(value);
-                })
+                .map(|val| val.trim().parse::<u32>().unwrap())
+                .for_each(|value| planted_seeds.push(value))
         } else if line.contains("map:") {
             let line_parts: Vec<&str> = line.split("map:").collect();
             let category = line_parts.get(0).expect("i expected a category").trim();
@@ -83,7 +95,13 @@ fn main() {
         }
     }
 
-    println!("store: {:?}", parsed_categories.capacity());
+    println!("store: {:?}", parsed_categories);
+
+    for planted_seed in planted_seeds {
+        let soil_id = get_destination_id(&parsed_categories, Category::SeedToSoil, planted_seed);
+
+        println!("seed: {:?}, soil_id: {:?}", planted_seed, soil_id);
+    }
 
     // let mut max_key = &0;
     // let mut categories_store: HashMap<Category, HashMap<u32, (u32, u32)>> =
