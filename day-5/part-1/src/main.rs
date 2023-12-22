@@ -11,18 +11,18 @@ enum Category {
     HumidityToLocation,
 }
 
-fn try_parse_u32(value: Option<&&str>) -> u32 {
+fn try_parse_u64(value: Option<&&str>) -> u64 {
     return value
         .expect("i expected a value")
-        .parse::<u32>()
-        .expect("i expected a u32");
+        .parse::<u64>()
+        .expect("i expected a u64");
 }
 
 fn get_destination_id(
-    store: &HashMap<Category, HashMap<u32, (u32, u32)>>,
+    store: &HashMap<Category, HashMap<u64, (u64, u64)>>,
     category: Category,
-    source: u32,
-) -> u32 {
+    source: u64,
+) -> u64 {
     let retrieved_cat = store.get(&category).expect("i expected a category");
     let destination = retrieved_cat.get(&source);
 
@@ -34,9 +34,9 @@ fn get_destination_id(
         let nearest_source = retrieved_cat.get(&index);
         if nearest_source.is_some() {
             let (destination, range) = nearest_source.unwrap();
-            for i in 0..*range {
-                if (index + i).eq(&source) {
-                    return destination + i;
+            for range_id in (0..*range).rev() {
+                if (index + range_id).eq(&source) {
+                    return destination + range_id;
                 }
             }
         }
@@ -61,7 +61,7 @@ fn main() {
         ("humidity-to-location", Category::HumidityToLocation),
     ]);
 
-    let mut parsed_categories: HashMap<Category, HashMap<u32, (u32, u32)>> = HashMap::from([
+    let mut parsed_categories: HashMap<Category, HashMap<u64, (u64, u64)>> = HashMap::from([
         (Category::SeedToSoil, HashMap::new()),
         (Category::SoilToFertilizer, HashMap::new()),
         (Category::FertilizerToWater, HashMap::new()),
@@ -72,7 +72,7 @@ fn main() {
     ]);
 
     let mut last_category: Option<Category> = None;
-    let mut planted_seeds = Vec::<u32>::new();
+    let mut planted_seeds = Vec::<u64>::new();
 
     for line in &lines {
         if line.starts_with("seeds:") {
@@ -82,7 +82,7 @@ fn main() {
                 .expect("i expected seeds")
                 .split(" ")
                 .filter(|val| !val.is_empty())
-                .map(|val| val.trim().parse::<u32>().unwrap())
+                .map(|val| val.trim().parse::<u64>().unwrap())
                 .for_each(|value| planted_seeds.push(value))
         } else if line.contains("map:") {
             let line_parts: Vec<&str> = line.split("map:").collect();
@@ -98,16 +98,16 @@ fn main() {
                 .or_insert(HashMap::new());
 
             let elements: Vec<&str> = line.split(" ").collect();
-            let destination = try_parse_u32(elements.get(0));
-            let source = try_parse_u32(elements.get(1));
-            let range = try_parse_u32(elements.get(2));
+            let destination = try_parse_u64(elements.get(0));
+            let source = try_parse_u64(elements.get(1));
+            let range = try_parse_u64(elements.get(2));
             stored_category
                 .entry(source)
                 .or_insert((destination, range));
         }
     }
 
-    let mut min_location = u32::MAX;
+    let mut min_location = u64::MAX;
     for seed_id in planted_seeds {
         println!("seed: {:?}", seed_id);
 
