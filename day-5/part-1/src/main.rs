@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, ops::Add};
+use std::{collections::HashMap, fs};
 
 #[derive(Debug, Eq, Hash, PartialEq, Copy, Clone)]
 enum Category {
@@ -20,8 +20,8 @@ fn try_parse_u32(value: Option<&&str>) -> u32 {
 
 fn get_destination_id(
     store: &HashMap<Category, HashMap<u32, (u32, u32)>>,
-    category: &Category,
-    source: &u32,
+    category: Category,
+    source: u32,
 ) -> u32 {
     let retrieved_cat = store.get(&category).expect("i expected a category");
     let destination = retrieved_cat.get(&source);
@@ -32,7 +32,7 @@ fn get_destination_id(
 
     let mut nearest_key_result: Option<(u32, u32, u32)> = None;
 
-    for index in (0..*source).rev() {
+    for index in (0..source).rev() {
         let nearest_source = retrieved_cat.get(&index);
         if nearest_source.is_some() {
             let (destination, range) = nearest_source.unwrap();
@@ -43,7 +43,7 @@ fn get_destination_id(
 
     // si on a pas de clés proche, alors source = destination
     if nearest_key_result.is_none() {
-        return *source;
+        return source;
     }
 
     let (nearest_source, destination, range) = nearest_key_result.unwrap();
@@ -52,7 +52,7 @@ fn get_destination_id(
             return destination + i;
         }
     }
-    return *source;
+    return source;
 }
 
 fn main() {
@@ -81,7 +81,7 @@ fn main() {
     ]);
 
     let mut last_category: Option<Category> = None;
-    let mut planted_seeds: Vec<u32> = Vec::new();
+    let mut planted_seeds = Vec::<u32>::new();
 
     for line in &lines {
         if line.starts_with("seeds:") {
@@ -116,51 +116,49 @@ fn main() {
         }
     }
 
-    // println!("store: {:?}", parsed_categories);
-
-    let mut locations: Vec<u32> = Vec::new();
-
+    let mut min_location = u32::MAX;
     for seed_id in planted_seeds {
         println!("seed: {:?}", seed_id);
 
-        let soil_id = get_destination_id(&parsed_categories, &Category::SeedToSoil, &seed_id);
+        let soil_id = get_destination_id(&parsed_categories, Category::SeedToSoil, seed_id);
         println!("soil: {:?}", soil_id);
 
         let fertilizer_id =
-            get_destination_id(&parsed_categories, &Category::SoilToFertilizer, &soil_id);
+            get_destination_id(&parsed_categories, Category::SoilToFertilizer, soil_id);
         println!("fertilizer: {:?}", fertilizer_id);
 
         let water_id = get_destination_id(
             &parsed_categories,
-            &Category::FertilizerToWater,
-            &fertilizer_id,
+            Category::FertilizerToWater,
+            fertilizer_id,
         );
         println!("water: {:?}", water_id);
 
-        let light_id = get_destination_id(&parsed_categories, &Category::WaterToLight, &water_id);
+        let light_id = get_destination_id(&parsed_categories, Category::WaterToLight, water_id);
         println!("light_id: {:?}", light_id);
 
         let temperature_id =
-            get_destination_id(&parsed_categories, &Category::LightToTemperature, &light_id);
+            get_destination_id(&parsed_categories, Category::LightToTemperature, light_id);
         println!("temperature: {:?}", temperature_id);
 
         let humidity_id = get_destination_id(
             &parsed_categories,
-            &Category::TemperatureToHumidity,
-            &temperature_id,
+            Category::TemperatureToHumidity,
+            temperature_id,
         );
         println!("humidity: {:?}", humidity_id);
 
         let location_id = get_destination_id(
             &parsed_categories,
-            &Category::HumidityToLocation,
-            &humidity_id,
+            Category::HumidityToLocation,
+            humidity_id,
         );
         println!("location: {:?}", location_id);
 
-        locations.push(location_id);
+        if min_location.gt(&location_id) {
+            min_location = location_id;
+        }
     }
 
-    locations.sort();
-    println!("minimal locations: {:?}", locations.get(0))
+    println!("minimum location: {:?}", min_location);
 }
