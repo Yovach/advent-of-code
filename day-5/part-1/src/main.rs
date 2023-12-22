@@ -31,7 +31,8 @@ fn get_destination_id(
     }
 
     let mut nearest_key_result: Option<(u32, u32, u32)> = None;
-    for index in (0..source.clone()).rev() {
+
+    for index in (0..*source).rev() {
         let nearest_source = retrieved_cat.get(&index);
         if nearest_source.is_some() {
             let (destination, range) = nearest_source.unwrap();
@@ -42,18 +43,16 @@ fn get_destination_id(
 
     // si on a pas de clés proche, alors source = destination
     if nearest_key_result.is_none() {
-        return source.clone();
+        return *source;
     }
 
     let (nearest_source, destination, range) = nearest_key_result.unwrap();
-    for i in 0..range.clone() {
-        if nearest_source.clone().add(i).eq(&source) {
-            return destination.clone().add(i);
+    for i in 0..range {
+        if (nearest_source + i).eq(&source) {
+            return destination + i;
         }
     }
-
-    return source.clone();
-    // panic!("i was not able to retrieve a value for {:?} with category : {:?}", source, category);
+    return *source;
 }
 
 fn main() {
@@ -122,29 +121,44 @@ fn main() {
     let mut locations: Vec<u32> = Vec::new();
 
     for seed_id in planted_seeds {
+        println!("seed: {:?}", seed_id);
+
         let soil_id = get_destination_id(&parsed_categories, &Category::SeedToSoil, &seed_id);
+        println!("soil: {:?}", soil_id);
+
         let fertilizer_id =
             get_destination_id(&parsed_categories, &Category::SoilToFertilizer, &soil_id);
+        println!("fertilizer: {:?}", fertilizer_id);
+
         let water_id = get_destination_id(
             &parsed_categories,
             &Category::FertilizerToWater,
             &fertilizer_id,
         );
+        println!("water: {:?}", water_id);
+
         let light_id = get_destination_id(&parsed_categories, &Category::WaterToLight, &water_id);
+        println!("light_id: {:?}", light_id);
+
         let temperature_id =
             get_destination_id(&parsed_categories, &Category::LightToTemperature, &light_id);
+        println!("temperature: {:?}", temperature_id);
+
         let humidity_id = get_destination_id(
             &parsed_categories,
             &Category::TemperatureToHumidity,
             &temperature_id,
         );
+        println!("humidity: {:?}", humidity_id);
+
         let location_id = get_destination_id(
             &parsed_categories,
             &Category::HumidityToLocation,
             &humidity_id,
         );
+        println!("location: {:?}", location_id);
 
-        locations.push(location_id.clone());
+        locations.push(location_id);
     }
 
     locations.sort();
