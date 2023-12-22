@@ -1,5 +1,4 @@
-use core::panic;
-use std::{collections::HashMap, fs, ops::Add, vec};
+use std::{collections::HashMap, fs, ops::Add};
 
 #[derive(Debug, Eq, Hash, PartialEq, Copy, Clone)]
 enum Category {
@@ -21,8 +20,8 @@ fn try_parse_u32(value: Option<&&str>) -> u32 {
 
 fn get_destination_id(
     store: &HashMap<Category, HashMap<u32, (u32, u32)>>,
-    category: Category,
-    source: u32,
+    category: &Category,
+    source: &u32,
 ) -> u32 {
     let retrieved_cat = store.get(&category).expect("i expected a category");
     let destination = retrieved_cat.get(&source);
@@ -32,7 +31,7 @@ fn get_destination_id(
     }
 
     let mut nearest_key_result: Option<(u32, u32, u32)> = None;
-    for index in (0..source).rev() {
+    for index in (0..source.clone()).rev() {
         let nearest_source = retrieved_cat.get(&index);
         if nearest_source.is_some() {
             let (destination, range) = nearest_source.unwrap();
@@ -43,7 +42,7 @@ fn get_destination_id(
 
     // si on a pas de clés proche, alors source = destination
     if nearest_key_result.is_none() {
-        return source;
+        return source.clone();
     }
 
     let (nearest_source, destination, range) = nearest_key_result.unwrap();
@@ -53,12 +52,13 @@ fn get_destination_id(
         }
     }
 
-    panic!("i was not able to retrieve a value");
+    return source.clone();
+    // panic!("i was not able to retrieve a value for {:?} with category : {:?}", source, category);
 }
 
 fn main() {
     let file_content =
-        fs::read_to_string("./input.txt").expect("i should be able to read this file");
+        fs::read_to_string("./real_input.txt").expect("i should be able to read this file");
     let lines: Vec<&str> = file_content.lines().collect();
 
     let category_mappings = HashMap::from([
@@ -117,121 +117,36 @@ fn main() {
         }
     }
 
-    println!("store: {:?}", parsed_categories);
+    // println!("store: {:?}", parsed_categories);
 
-    for planted_seed in planted_seeds {
-        let soil_id = get_destination_id(&parsed_categories, Category::SeedToSoil, planted_seed);
+    let mut locations: Vec<u32> = Vec::new();
 
-        println!("seed: {:?}, soil_id: {:?}", planted_seed, soil_id);
+    for seed_id in planted_seeds {
+        let soil_id = get_destination_id(&parsed_categories, &Category::SeedToSoil, &seed_id);
+        let fertilizer_id =
+            get_destination_id(&parsed_categories, &Category::SoilToFertilizer, &soil_id);
+        let water_id = get_destination_id(
+            &parsed_categories,
+            &Category::FertilizerToWater,
+            &fertilizer_id,
+        );
+        let light_id = get_destination_id(&parsed_categories, &Category::WaterToLight, &water_id);
+        let temperature_id =
+            get_destination_id(&parsed_categories, &Category::LightToTemperature, &light_id);
+        let humidity_id = get_destination_id(
+            &parsed_categories,
+            &Category::TemperatureToHumidity,
+            &temperature_id,
+        );
+        let location_id = get_destination_id(
+            &parsed_categories,
+            &Category::HumidityToLocation,
+            &humidity_id,
+        );
+
+        locations.push(location_id.clone());
     }
 
-    // let mut max_key = &0;
-    // let mut categories_store: HashMap<Category, HashMap<u32, (u32, u32)>> =
-    //     parsed_categories.clone();
-    // for (category, store) in parsed_categories.iter() {
-    //     let mut min_key = &0;
-    //     store.keys().for_each(|key| {
-    //         if max_key.le(key) {
-    //             max_key = key;
-    //         } else if min_key.ge(key) {
-    //             min_key = key;
-    //         }
-    //     });
-    //     categories_store
-    //         .entry(category.clone())
-    //         .and_modify(|mapping| {
-    //             for i in min_key.clone()..max_key.clone() {
-    //                 mapping.entry(i).or_insert_with(|| i);
-    //             }
-    //         });
-
-    //     // println!("max {:?} for category {:?}", max_key, category);
-    // }
-
-    // // println!("categories: {:?}", categories_store);
-
-    // let mut min_location = &u32::MAX;
-
-    // // println!("min location: {:?}", min_location);
-    // println!("planted seeds: {:?}", planted_seets);
-
-    // for (seed_id, soil_id) in categories_store.get(&Category::SeedToSoil).unwrap() {
-    //     // println!("seed: {:?}, soil: {:?}", seed_id, soil_id);
-
-    //     let fertilizer_result = categories_store
-    //         .get(&Category::SoilToFertilizer)
-    //         .expect("i expected a fertilizer cat")
-    //         .get(soil_id);
-    //     if fertilizer_result.is_some() {
-    //         let fertilizer = fertilizer_result.unwrap();
-    //         let water_result = categories_store
-    //             .get(&Category::FertilizerToWater)
-    //             .expect("i expected a water cat")
-    //             .get(fertilizer);
-    //         if water_result.is_some() {
-    //             let water = water_result.unwrap();
-    //             let light_result = categories_store
-    //                 .get(&Category::WaterToLight)
-    //                 .expect("i expected a light cat")
-    //                 .get(water);
-
-    //             if light_result.is_some() {
-    //                 let light = light_result.unwrap();
-    //                 let temperature_result = categories_store
-    //                     .get(&Category::LightToTemperature)
-    //                     .expect("i expected a temperature cat")
-    //                     .get(light);
-
-    //                 if temperature_result.is_some() {
-    //                     let temperature = temperature_result.unwrap();
-    //                     let humidity_result = categories_store
-    //                         .get(&Category::TemperatureToHumidity)
-    //                         .expect("i expected a humidity cat")
-    //                         .get(temperature);
-
-    //                     if humidity_result.is_some() {
-    //                         let humidity = humidity_result.unwrap();
-    //                         let location_result = categories_store
-    //                             .get(&Category::HumidityToLocation)
-    //                             .expect("i expected a location cat")
-    //                             .get(humidity);
-
-    //                         if location_result.is_some() {
-    //                             let location = location_result.unwrap();
-    //                             // println!("location: {:?}", location);
-
-    //                             if planted_seets.contains(seed_id) {
-    //                                 println!("Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}, humidity {:?}, location {:?}", seed_id, soil_id, fertilizer, water, light, temperature, humidity, location);
-
-    //                                 if location.le(min_location) {
-    //                                     min_location = location;
-    //                                 }
-    //                             }
-    //                         } else {
-    //                             // println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}, humidity {:?}", seed_id, soil_id, fertilizer, water, light, temperature, humidity)
-    //                         }
-    //                     } else {
-    //                         // println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}, temperature {:?}", seed_id, soil_id, fertilizer, water, light, temperature)
-    //                     }
-    //                 } else {
-    //                     // println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}, light {:?}", seed_id, soil_id, fertilizer, water, light)
-    //                 }
-    //             } else {
-    //                 // println!("i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}, water {:?}", seed_id, soil_id, fertilizer, water)
-    //             }
-    //         } else {
-    //             // println!(
-    //             //     "i maybe have a problem here, Seed {:?}, soil {:?}, fertilizer {:?}",
-    //             //     seed_id, soil_id, fertilizer
-    //             // )
-    //         }
-    //     } else {
-    //         // println!(
-    //         //     "i maybe have a problem here, Seed {:?}, soil {:?}",
-    //         //     seed_id, soil_id
-    //         // )
-    //     }
-    // }
-
-    // println!("{:?}", min_location);
+    locations.sort();
+    println!("minimal locations: {:?}", locations.get(0))
 }
