@@ -1,4 +1,5 @@
-use std::{collections::HashMap, fs, ops::Add};
+use core::panic;
+use std::{collections::HashMap, fs, ops::Add, vec};
 
 #[derive(Debug, Eq, Hash, PartialEq, Copy, Clone)]
 enum Category {
@@ -30,11 +31,12 @@ fn get_destination_id(
         return destination.unwrap().0;
     }
 
-    let mut nearest_key_result: Option<&(u32, u32)> = None;
-    for k in (0..source).rev() {
-        let nearest_source = retrieved_cat.get(&k);
+    let mut nearest_key_result: Option<(u32, u32, u32)> = None;
+    for index in (0..source).rev() {
+        let nearest_source = retrieved_cat.get(&index);
         if nearest_source.is_some() {
-            nearest_key_result = Some(nearest_source.unwrap());
+            let (destination, range) = nearest_source.unwrap();
+            nearest_key_result = Some((index, *destination, *range));
             break;
         }
     }
@@ -44,22 +46,14 @@ fn get_destination_id(
         return source;
     }
 
-    let (destination, range) = nearest_key_result.unwrap();
-
-    
-
-    let start = (source).clone();
-    let end = (source+range).clone();
-
-    println!("destination: {destination}, source: {source}");
-    for k in start..end {
-        // if k == source {
-        //     return k;
-        // }
-        println!("key: {:?}", k);
+    let (nearest_source, destination, range) = nearest_key_result.unwrap();
+    for i in 0..range.clone() {
+        if nearest_source.clone().add(i).eq(&source) {
+            return destination.clone().add(i);
+        }
     }
 
-    return 0;
+    panic!("i was not able to retrieve a value");
 }
 
 fn main() {
