@@ -30,28 +30,19 @@ fn get_destination_id(
         return destination.unwrap().0;
     }
 
-    let mut nearest_key_result: Option<(u32, u32, u32)> = None;
-
     for index in (0..source).rev() {
         let nearest_source = retrieved_cat.get(&index);
         if nearest_source.is_some() {
             let (destination, range) = nearest_source.unwrap();
-            nearest_key_result = Some((index, *destination, *range));
-            break;
+            for i in 0..*range {
+                if (index + i).eq(&source) {
+                    return destination + i;
+                }
+            }
         }
     }
 
     // si on a pas de clés proche, alors source = destination
-    if nearest_key_result.is_none() {
-        return source;
-    }
-
-    let (nearest_source, destination, range) = nearest_key_result.unwrap();
-    for i in 0..range {
-        if (nearest_source + i).eq(&source) {
-            return destination + i;
-        }
-    }
     return source;
 }
 
