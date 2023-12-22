@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs};
+use std::{collections::HashMap, fs, time::Instant};
 
 #[derive(Debug, Eq, Hash, PartialEq, Copy, Clone)]
 enum Category {
@@ -21,32 +21,39 @@ fn try_parse_u64(value: Option<&&str>) -> u64 {
 fn get_destination_id(
     store: &HashMap<Category, HashMap<u64, (u64, u64)>>,
     category: Category,
-    source: u64,
+    asked_source: u64,
 ) -> u64 {
     let retrieved_cat = store.get(&category).expect("i expected a category");
-    let destination = retrieved_cat.get(&source);
+    let destination = retrieved_cat.get(&asked_source);
 
     if destination.is_some() {
         return destination.unwrap().0;
     }
 
-    for index in (0..source).rev() {
-        let nearest_source = retrieved_cat.get(&index);
-        if nearest_source.is_some() {
-            let (destination, range) = nearest_source.unwrap();
-            for range_id in (0..*range).rev() {
-                if (index + range_id).eq(&source) {
-                    return destination + range_id;
-                }
-            }
+    for (source, (destination, range)) in retrieved_cat.iter() {
+        if *source <= asked_source && asked_source < (source + range) {
+            return destination + (asked_source - source);
         }
     }
 
+    // for index in (0..asked_source).rev() {
+    //     let nearest_source = retrieved_cat.get(&index);
+    //     if nearest_source.is_some() {
+    //         let (destination, range) = nearest_source.unwrap();
+    //         for range_id in (0..*range).rev() {
+    //             if (index + range_id).eq(&asked_source) {
+    //                 return destination + range_id;
+    //             }
+    //         }
+    //     }
+    // }
+
     // si on a pas de clés proche, alors source = destination
-    return source;
+    return asked_source;
 }
 
 fn main() {
+    let now = Instant::now();
     let file_content =
         fs::read_to_string("./real_input.txt").expect("i should be able to read this file");
     let lines: Vec<&str> = file_content.lines().collect();
@@ -152,4 +159,6 @@ fn main() {
     }
 
     println!("minimum location: {:?}", min_location);
+    let elapsed = now.elapsed();
+    println!("Elapsed: {:.2?}", elapsed);
 }
