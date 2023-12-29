@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, iter::Filter, ops::Range, time::Instant};
+use std::{collections::HashMap, fs, time::Instant};
 
 #[derive(Debug, Eq, Hash, PartialEq, Copy, Clone)]
 enum Category {
@@ -140,25 +140,17 @@ fn main() {
 
     let mut min_location = u64::MAX;
 
-    let mut already_handled_seeds = Vec::<u64>::new();
     for (initial_seed_id, range) in planted_seeds {
-        let filtered_range: Vec<u64> = (initial_seed_id..(initial_seed_id + range))
-            .filter(|val| {
-                return !already_handled_seeds.contains(val);
-            })
-            .collect();
-
-        println!("vec size: {:?}", filtered_range.len());
-        for seed_id in filtered_range {
+        println!("initial: {:?}, range: {:?}", initial_seed_id, range);
+        for seed_id in initial_seed_id..(initial_seed_id + range) {
             let location_id = get_location_by_seed(&parsed_categories, seed_id);
             if min_location > location_id {
-                min_location = location_id;
+                min_location = location_id
             }
-            already_handled_seeds.push(seed_id);
         }
     }
 
     println!("minimum location: {:?}", min_location);
-    // let elapsed = now.elapsed();
-    // println!("Elapsed: {:.2?}", elapsed);
+    let elapsed = now.elapsed();
+    println!("Elapsed: {:.2?}", elapsed);
 }
