@@ -15,3 +15,12 @@ Advent of Code 2023
   - **Part 1**: ok
   - **Part 2**: not ok (need to learn more about changes in arrays while iterating)
 
+# Day 4
+  - **Part 1**: ok
+  - **Part 2**: not ok (need to learn more about changes in arrays while iterating)
+
+# Day 5
+  - **Part 1**: ok
+  - **Part 2**: ok
+
+**NOTE**: Always use `release` build
