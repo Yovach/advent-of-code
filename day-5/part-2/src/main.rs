@@ -79,18 +79,32 @@ fn main() {
     ]);
 
     let mut last_category: Option<Category> = None;
+    // let mut planted_seeds = Vec::<(u64, u64)>::new();
     let mut planted_seeds = Vec::<u64>::new();
 
     for line in &lines {
         if line.starts_with("seeds:") {
             let line_parts: Vec<&str> = line.split("seeds:").collect();
-            line_parts
+            let seeds_data: Vec<&str> = line_parts
                 .get(1)
                 .expect("i expected seeds")
                 .split(" ")
-                .filter(|val| !val.is_empty())
-                .map(|val| val.trim().parse::<u64>().unwrap())
-                .for_each(|value| planted_seeds.push(value))
+                .map(|value| value.trim())
+                .filter(|value| !value.is_empty())
+                .collect();
+
+            for i in (0..seeds_data.len()).step_by(2) {
+                let initial_seed_id = try_parse_u64(seeds_data.get(i));
+                let range = try_parse_u64(seeds_data.get(i + 1));
+
+                // println!("initial: {:?}, range: {:?}", initial_seed_id, range);
+
+                for k in 0..range {
+                    planted_seeds.push(initial_seed_id + k)
+                }
+            }
+
+            println!("list: {:?}", planted_seeds.len())
         } else if line.contains("map:") {
             let line_parts: Vec<&str> = line.split("map:").collect();
             let category = line_parts.get(0).expect("i expected a category").trim();
@@ -116,42 +130,42 @@ fn main() {
 
     let mut min_location = u64::MAX;
     for seed_id in planted_seeds {
-        println!("seed: {:?}", seed_id);
+        // println!("seed: {:?}", seed_id);
 
         let soil_id = get_destination_id(&parsed_categories, Category::SeedToSoil, seed_id);
-        println!("soil: {:?}", soil_id);
+        // println!("soil: {:?}", soil_id);
 
         let fertilizer_id =
             get_destination_id(&parsed_categories, Category::SoilToFertilizer, soil_id);
-        println!("fertilizer: {:?}", fertilizer_id);
+        // println!("fertilizer: {:?}", fertilizer_id);
 
         let water_id = get_destination_id(
             &parsed_categories,
             Category::FertilizerToWater,
             fertilizer_id,
         );
-        println!("water: {:?}", water_id);
+        // println!("water: {:?}", water_id);
 
         let light_id = get_destination_id(&parsed_categories, Category::WaterToLight, water_id);
-        println!("light_id: {:?}", light_id);
+        // println!("light_id: {:?}", light_id);
 
         let temperature_id =
             get_destination_id(&parsed_categories, Category::LightToTemperature, light_id);
-        println!("temperature: {:?}", temperature_id);
+        // println!("temperature: {:?}", temperature_id);
 
         let humidity_id = get_destination_id(
             &parsed_categories,
             Category::TemperatureToHumidity,
             temperature_id,
         );
-        println!("humidity: {:?}", humidity_id);
+        // println!("humidity: {:?}", humidity_id);
 
         let location_id = get_destination_id(
             &parsed_categories,
             Category::HumidityToLocation,
             humidity_id,
         );
-        println!("location: {:?}", location_id);
+        // println!("location: {:?}", location_id);
 
         if min_location.gt(&location_id) {
             min_location = location_id;
@@ -159,6 +173,6 @@ fn main() {
     }
 
     println!("minimum location: {:?}", min_location);
-    let elapsed = now.elapsed();
-    println!("Elapsed: {:.2?}", elapsed);
+    // let elapsed = now.elapsed();
+    // println!("Elapsed: {:.2?}", elapsed);
 }
