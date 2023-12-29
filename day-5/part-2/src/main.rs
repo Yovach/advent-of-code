@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, time::Instant};
+use std::{collections::HashMap, fs, iter::Filter, ops::Range, time::Instant};
 
 #[derive(Debug, Eq, Hash, PartialEq, Copy, Clone)]
 enum Category {
@@ -18,37 +18,48 @@ fn try_parse_u64(value: Option<&&str>) -> u64 {
         .expect("i expected a u64");
 }
 
+fn get_location_by_seed(
+    categories: &HashMap<Category, HashMap<u64, (u64, u64)>>,
+    seed_id: u64,
+) -> u64 {
+    // println!("seed: {:?}", seed_id);
+
+    let soil_id = get_destination_id(categories, Category::SeedToSoil, seed_id.clone());
+    // println!("soil: {:?}", soil_id);
+
+    let fertilizer_id = get_destination_id(categories, Category::SoilToFertilizer, soil_id);
+    // println!("fertilizer: {:?}", fertilizer_id);
+
+    let water_id = get_destination_id(categories, Category::FertilizerToWater, fertilizer_id);
+    // println!("water: {:?}", water_id);
+
+    let light_id = get_destination_id(categories, Category::WaterToLight, water_id);
+    // println!("light_id: {:?}", light_id);
+
+    let temperature_id = get_destination_id(categories, Category::LightToTemperature, light_id);
+    // println!("temperature: {:?}", temperature_id);
+
+    let humidity_id =
+        get_destination_id(categories, Category::TemperatureToHumidity, temperature_id);
+    // println!("humidity: {:?}", humidity_id);
+
+    let location_id = get_destination_id(categories, Category::HumidityToLocation, humidity_id);
+
+    return location_id;
+}
+
 fn get_destination_id(
     store: &HashMap<Category, HashMap<u64, (u64, u64)>>,
     category: Category,
     asked_source: u64,
 ) -> u64 {
     let retrieved_cat = store.get(&category).expect("i expected a category");
-    let destination = retrieved_cat.get(&asked_source);
-
-    if destination.is_some() {
-        return destination.unwrap().0;
-    }
-
     for (source, (destination, range)) in retrieved_cat.iter() {
         if *source <= asked_source && asked_source < (source + range) {
             return destination + (asked_source - source);
         }
     }
 
-    // for index in (0..asked_source).rev() {
-    //     let nearest_source = retrieved_cat.get(&index);
-    //     if nearest_source.is_some() {
-    //         let (destination, range) = nearest_source.unwrap();
-    //         for range_id in (0..*range).rev() {
-    //             if (index + range_id).eq(&asked_source) {
-    //                 return destination + range_id;
-    //             }
-    //         }
-    //     }
-    // }
-
-    // si on a pas de clés proche, alors source = destination
     return asked_source;
 }
 
@@ -79,8 +90,8 @@ fn main() {
     ]);
 
     let mut last_category: Option<Category> = None;
-    // let mut planted_seeds = Vec::<(u64, u64)>::new();
-    let mut planted_seeds = Vec::<u64>::new();
+    let mut planted_seeds = Vec::<(u64, u64)>::new();
+    // let mut planted_seeds = Vec::<u64>::new();
 
     for line in &lines {
         if line.starts_with("seeds:") {
@@ -96,15 +107,14 @@ fn main() {
             for i in (0..seeds_data.len()).step_by(2) {
                 let initial_seed_id = try_parse_u64(seeds_data.get(i));
                 let range = try_parse_u64(seeds_data.get(i + 1));
-
-                // println!("initial: {:?}, range: {:?}", initial_seed_id, range);
-
-                for k in 0..range {
-                    planted_seeds.push(initial_seed_id + k)
-                }
+                planted_seeds.push((initial_seed_id, range))
             }
 
-            println!("list: {:?}", planted_seeds.len())
+            println!(
+                "length: {:?}, list: {:?}",
+                planted_seeds.len(),
+                planted_seeds
+            )
         } else if line.contains("map:") {
             let line_parts: Vec<&str> = line.split("map:").collect();
             let category = line_parts.get(0).expect("i expected a category").trim();
@@ -129,46 +139,22 @@ fn main() {
     }
 
     let mut min_location = u64::MAX;
-    for seed_id in planted_seeds {
-        // println!("seed: {:?}", seed_id);
 
-        let soil_id = get_destination_id(&parsed_categories, Category::SeedToSoil, seed_id);
-        // println!("soil: {:?}", soil_id);
+    let mut already_handled_seeds = Vec::<u64>::new();
+    for (initial_seed_id, range) in planted_seeds {
+        let filtered_range: Vec<u64> = (initial_seed_id..(initial_seed_id + range))
+            .filter(|val| {
+                return !already_handled_seeds.contains(val);
+            })
+            .collect();
 
-        let fertilizer_id =
-            get_destination_id(&parsed_categories, Category::SoilToFertilizer, soil_id);
-        // println!("fertilizer: {:?}", fertilizer_id);
-
-        let water_id = get_destination_id(
-            &parsed_categories,
-            Category::FertilizerToWater,
-            fertilizer_id,
-        );
-        // println!("water: {:?}", water_id);
-
-        let light_id = get_destination_id(&parsed_categories, Category::WaterToLight, water_id);
-        // println!("light_id: {:?}", light_id);
-
-        let temperature_id =
-            get_destination_id(&parsed_categories, Category::LightToTemperature, light_id);
-        // println!("temperature: {:?}", temperature_id);
-
-        let humidity_id = get_destination_id(
-            &parsed_categories,
-            Category::TemperatureToHumidity,
-            temperature_id,
-        );
-        // println!("humidity: {:?}", humidity_id);
-
-        let location_id = get_destination_id(
-            &parsed_categories,
-            Category::HumidityToLocation,
-            humidity_id,
-        );
-        // println!("location: {:?}", location_id);
-
-        if min_location.gt(&location_id) {
-            min_location = location_id;
+        println!("vec size: {:?}", filtered_range.len());
+        for seed_id in filtered_range {
+            let location_id = get_location_by_seed(&parsed_categories, seed_id);
+            if min_location > location_id {
+                min_location = location_id;
+            }
+            already_handled_seeds.push(seed_id);
         }
     }
 
