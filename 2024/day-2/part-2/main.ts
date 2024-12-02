@@ -1,3 +1,7 @@
+function parseAsInt(val: string) {
+  return parseInt(val, 10);
+}
+
 const fileContent = Deno.readTextFileSync("./input.txt").trimEnd();
 
 // Aussi appelées "reports"
@@ -5,7 +9,7 @@ const lines: string[] = fileContent.split("\n");
 let nbValidReports = 0;
 
 for (const line of lines) {
-  const levels: number[] = line.split(" ").map((val) => parseInt(val, 10));
+  const levels: number[] = line.split(" ").map(parseAsInt);
 
   let isIncreasing: boolean | null = null;
   let isValid: boolean = true;
