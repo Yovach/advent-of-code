@@ -5,7 +5,7 @@ const lines: string[] = fileContent.split("\n");
 let nbValidReports = 0;
 
 for (const line of lines) {
-  const levels = line.split(" ");
+  const levels: number[] = line.split(" ").map((val) => parseInt(val, 10));
 
   let isIncreasing: boolean | null = null;
   let isValid: boolean = true;
@@ -13,14 +13,13 @@ for (const line of lines) {
 
   for (let index = 0; index < levels.length && isValid === true; index++) {
     const value = levels[index];
-    const valueAsInt = parseInt(value, 10);
 
     if (previous === null) {
-      previous = valueAsInt;
+      previous = value;
       continue;
     }
 
-    const ascending = (valueAsInt - previous) > 0;
+    const ascending = (value - previous) > 0;
     if (isIncreasing === null) {
       isIncreasing = ascending;
     }
@@ -30,13 +29,13 @@ for (const line of lines) {
       continue;
     }
 
-    const distance = Math.abs(valueAsInt - previous);
+    const distance = Math.abs(value - previous);
     if (distance < 1 || distance > 3) {
       isValid = false;
       continue;
     }
 
-    previous = valueAsInt;
+    previous = value;
   }
 
   if (isValid) {
