@@ -2,41 +2,39 @@ function parseAsInt(val: string) {
   return parseInt(val, 10);
 }
 
-function isValid(report: number[]) {
+function getErroredIndexes(report: number[], ignoredIndex: number | null = null): number[] {
+  const erroredIndexes: number[] = [];
+
   let isIncreasing: boolean | null = null;
   let previous: number | null = null;
 
-  let nbErrors = 0;
   for (let index = 0; index < report.length; index++) {
-    const value = report[index];
+    if (ignoredIndex !== null && ignoredIndex === index) {
+      continue;
+    }
+
+    const value: number = report[index];
     if (previous === null) {
       previous = value;
       continue;
     }
 
-    const ascending = (value - previous) > 0;
+    const ascending: boolean = (value - previous) > 0;
     if (isIncreasing === null) {
       isIncreasing = ascending;
     }
 
-    if (ascending !== isIncreasing) {
-      nbErrors++;
-      continue;
+    const distance: number = Math.abs(value - previous);
+    if (ascending !== isIncreasing || distance < 1 || distance > 3) {
+      erroredIndexes.push(index);
+      // continue;
     }
-
 
     isIncreasing = ascending;
-
-    const distance = Math.abs(value - previous);
-    if (distance < 1 || distance > 3) {
-      nbErrors++;
-      continue;
-    }
-
     previous = value;
   }
 
-  return nbErrors <= 1;
+  return erroredIndexes;
 }
 
 const fileContent: string = Deno.readTextFileSync("./input.txt").trimEnd();
@@ -45,13 +43,31 @@ const fileContent: string = Deno.readTextFileSync("./input.txt").trimEnd();
 const lines: string[] = fileContent.split("\n");
 const validReports: string[] = [];
 
+// On parcourt les reports
 for (let reportsIndex = 0; reportsIndex < lines.length; reportsIndex++) {
   const line = lines[reportsIndex];
 
+  // On récupère les éléments d'un rapport
   const levels: number[] = line.split(" ").map(parseAsInt);
 
-  if (isValid(levels)) {
+  // Récupérer les indexes en erreur
+  const erroredIndexes = getErroredIndexes(levels);
+  if (erroredIndexes.length === 0) {
     validReports.push(line);
+    continue;
+  }
+
+
+  let foundGoodReport = false;
+  // On parcourt les index erronés
+  for (let index = 0; index < erroredIndexes.length && foundGoodReport === false; index++) {
+    const nbRemainingErrors = getErroredIndexes(levels, erroredIndexes[index]);
+    console.log(nbRemainingErrors.length);
+    if (nbRemainingErrors.length === 0) {
+      validReports.push(line);
+      foundGoodReport = true;
+      break;
+    }
   }
 }
 
