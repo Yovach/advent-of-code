@@ -2,7 +2,7 @@ const fileContent = Deno.readTextFileSync("./input.txt").trimEnd();
 
 // Aussi appelées "reports"
 const lines: string[] = fileContent.split("\n");
-const validReports: string[] = [];
+let nbValidReports = 0;
 
 for (const line of lines) {
   const levels = line.split(" ");
@@ -30,8 +30,6 @@ for (const line of lines) {
       continue;
     }
 
-    isIncreasing = ascending;
-
     const distance = Math.abs(valueAsInt - previous);
     if (distance < 1 || distance > 3) {
       isValid = false;
@@ -42,8 +40,8 @@ for (const line of lines) {
   }
 
   if (isValid) {
-    validReports.push(line);
+    nbValidReports += 1;
   }
 }
 
-console.log(validReports.length);
+console.log(nbValidReports);
