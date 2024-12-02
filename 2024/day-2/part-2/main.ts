@@ -2,30 +2,19 @@ function parseAsInt(val: string) {
   return parseInt(val, 10);
 }
 
-const fileContent: string = Deno.readTextFileSync("./input.txt").trimEnd();
-
-// Aussi appelées "reports"
-const lines: string[] = fileContent.split("\n");
-let nbValidReports = 0;
-
-for (const line of lines) {
-  const levels: number[] = line.split(" ").map(parseAsInt);
-
+function isValid(report: number[]) {
   let isIncreasing: boolean | null = null;
-  let isValid: boolean = true;
   let previous: number | null = null;
 
   let nbErrors = 0;
-
-  for (let index = 0; index < levels.length && isValid === true; index++) {
-    const value: number = levels[index];
-
+  for (let index = 0; index < report.length; index++) {
+    const value = report[index];
     if (previous === null) {
       previous = value;
       continue;
     }
 
-    const ascending: boolean = (value - previous) > 0;
+    const ascending = (value - previous) > 0;
     if (isIncreasing === null) {
       isIncreasing = ascending;
     }
@@ -35,7 +24,10 @@ for (const line of lines) {
       continue;
     }
 
-    const distance: number = Math.abs(value - previous);
+
+    isIncreasing = ascending;
+
+    const distance = Math.abs(value - previous);
     if (distance < 1 || distance > 3) {
       nbErrors++;
       continue;
@@ -44,9 +36,23 @@ for (const line of lines) {
     previous = value;
   }
 
-  if (nbErrors <= 1) {
-    nbValidReports += 1;
+  return nbErrors <= 1;
+}
+
+const fileContent: string = Deno.readTextFileSync("./input.txt").trimEnd();
+
+// Aussi appelées "reports"
+const lines: string[] = fileContent.split("\n");
+const validReports: string[] = [];
+
+for (let reportsIndex = 0; reportsIndex < lines.length; reportsIndex++) {
+  const line = lines[reportsIndex];
+
+  const levels: number[] = line.split(" ").map(parseAsInt);
+
+  if (isValid(levels)) {
+    validReports.push(line);
   }
 }
 
-console.log(nbValidReports);
+console.log(validReports.length);
