@@ -9,5 +9,6 @@
     "./day-4/part-2/Cargo.toml",
     "./day-5/part-1/Cargo.toml",
     "./day-5/part-2/Cargo.toml"
-  ]
+  ],
+  "deno.enable": true
 }
