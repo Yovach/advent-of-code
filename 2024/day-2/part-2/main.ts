@@ -2,7 +2,7 @@ function parseAsInt(val: string) {
   return parseInt(val, 10);
 }
 
-const fileContent = Deno.readTextFileSync("./input.txt").trimEnd();
+const fileContent: string = Deno.readTextFileSync("./input.txt").trimEnd();
 
 // Aussi appelées "reports"
 const lines: string[] = fileContent.split("\n");
@@ -15,34 +15,36 @@ for (const line of lines) {
   let isValid: boolean = true;
   let previous: number | null = null;
 
+  let nbErrors = 0;
+
   for (let index = 0; index < levels.length && isValid === true; index++) {
-    const value = levels[index];
+    const value: number = levels[index];
 
     if (previous === null) {
       previous = value;
       continue;
     }
 
-    const ascending = (value - previous) > 0;
+    const ascending: boolean = (value - previous) > 0;
     if (isIncreasing === null) {
       isIncreasing = ascending;
     }
 
     if (ascending !== isIncreasing) {
-      isValid = false;
+      nbErrors++;
       continue;
     }
 
-    const distance = Math.abs(value - previous);
+    const distance: number = Math.abs(value - previous);
     if (distance < 1 || distance > 3) {
-      isValid = false;
+      nbErrors++;
       continue;
     }
 
     previous = value;
   }
 
-  if (isValid) {
+  if (nbErrors <= 1) {
     nbValidReports += 1;
   }
 }
