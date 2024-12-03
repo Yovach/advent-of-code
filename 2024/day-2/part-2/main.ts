@@ -2,9 +2,7 @@ function parseAsInt(val: string) {
   return parseInt(val, 10);
 }
 
-function getErroredIndexes(report: number[]): number[] {
-  const erroredIndexes: number[] = [];
-
+function isValidSequence(report: number[]): boolean {
   let isIncreasing: boolean | null = null;
   let previous: number | null = null;
 
@@ -27,33 +25,30 @@ function getErroredIndexes(report: number[]): number[] {
     // récupérer la distance absolue de A-B
     const distance: number = Math.abs(value - previous);
     if (ascending !== isIncreasing || distance < 1 || distance > 3) {
-      erroredIndexes.push(index);
-      continue;
+      return false;
     }
 
     previous = value;
   }
 
-  return erroredIndexes;
+  return true;
 }
 
 const fileContent: string = Deno.readTextFileSync("./input.txt").trimEnd();
 
 // Aussi appelées "reports"
 const lines: string[] = fileContent.split("\n");
-const validReports: string[] = [];
+let nbValidReports = 0;
 
 // On parcourt les reports
-for (let reportsIndex = 0; reportsIndex < lines.length; reportsIndex++) {
-  const line = lines[reportsIndex];
-
+for (const line of lines) {
   // On récupère les éléments d'un rapport
   const levels: number[] = line.split(" ").map(parseAsInt);
 
   // Récupérer les indexes en erreur
-  const erroredIndexes = getErroredIndexes(levels);
-  if (erroredIndexes.length === 0) {
-    validReports.push(line);
+  const isValid = isValidSequence(levels);
+  if (isValid === true) {
+    nbValidReports++;
     continue;
   }
 
@@ -61,13 +56,11 @@ for (let reportsIndex = 0; reportsIndex < lines.length; reportsIndex++) {
   let hasGoodReport = false;
   // On parcourt les index erronés
   for (let idx = 0; idx < levels.length && hasGoodReport === false; idx++) {
-    const nbRemainingErrors = getErroredIndexes(levels.toSpliced(idx, 1));
-    if (nbRemainingErrors.length === 0) {
-      validReports.push(line);
+    if (isValidSequence(levels.toSpliced(idx, 1))) {
+      nbValidReports++;
       hasGoodReport = true;
-      break;
     }
   }
 }
 
-console.log(validReports.length);
+console.log(nbValidReports);
