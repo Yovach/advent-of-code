@@ -9,30 +9,29 @@ type Instruction = {
 
 const fileContent: string = Deno.readTextFileSync("./input.txt").trimEnd();
 
-const regexInstructions = /([a-z]+'?[a-z]+)\((.*?)\)/g;
+const handledInstructions = ["(do)\\(\\)", "(don't)\\(\\)", "(mul)\\((\\d+),(\\d+)\\)"]
 
+const regexInstructions = new RegExp("(" + handledInstructions.join("|") + ")", "g")
 let canExecuteNext = true;
 
 let total = 0;
 
 for (const match of fileContent.matchAll(regexInstructions)) {
   const instructionMethod = match[1];
-  console.log(instructionMethod)
-
-  if (instructionMethod === "mul") {
+  if (instructionMethod.startsWith("mul")) {
     if (canExecuteNext === false) {
       continue;
     }
 
-    const instructionArguments = match[2];
-    const args = instructionArguments.split(",").map(parseAsInt);
-    if (args.length === 2 && args.every((value) => !Number.isNaN(value))) {
-      total += args[0] * args[1]
+    const firstNumber = parseAsInt(match[5]);
+    const secondNumber = parseAsInt(match[6]);
+    if (!Number.isNaN(firstNumber) && !Number.isNaN(secondNumber)) {
+      total += firstNumber * secondNumber;
     }
-  } else if (instructionMethod === "do") {
-    canExecuteNext = true;
-  } else if (instructionMethod === "don't") {
+  } else if (instructionMethod.startsWith("don't")) {
     canExecuteNext = false;
+  } else if (instructionMethod.startsWith("do")) {
+    canExecuteNext = true;
   }
 }
 
