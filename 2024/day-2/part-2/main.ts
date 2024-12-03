@@ -2,18 +2,13 @@ function parseAsInt(val: string) {
   return parseInt(val, 10);
 }
 
-function getErroredIndexes(report: number[], ignoredIndex: number | null = null): number[] {
+function getErroredIndexes(report: number[]): number[] {
   const erroredIndexes: number[] = [];
 
   let isIncreasing: boolean | null = null;
   let previous: number | null = null;
 
-  for (let index = report.length - 1; index >= 0; index--) {
-    // On ne compte pas l'erreur de l'index ignoré
-    if (ignoredIndex !== null && ignoredIndex === index) {
-      continue;
-    }
-
+  for (let index = 0; index < report.length; index++) {
     const value: number = report[index];
 
     // S'il n'y a pas d'élément précédent, on assigne la valeur actuelle
@@ -63,13 +58,14 @@ for (let reportsIndex = 0; reportsIndex < lines.length; reportsIndex++) {
   }
 
 
-  let foundGoodReport = false;
+  let hasGoodReport = false;
   // On parcourt les index erronés
-  for (let index = 0; index < erroredIndexes.length && foundGoodReport === false; index++) {
-    const nbRemainingErrors = getErroredIndexes(levels, erroredIndexes[index]);
+  for (let idx = 0; idx < levels.length && hasGoodReport === false; idx++) {
+    const nbRemainingErrors = getErroredIndexes(levels.toSpliced(idx, 1));
     if (nbRemainingErrors.length === 0) {
       validReports.push(line);
-      foundGoodReport = true;
+      hasGoodReport = true;
+      break;
     }
   }
 }
