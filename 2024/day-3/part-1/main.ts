@@ -1,8 +1,16 @@
-export function add(a: number, b: number): number {
-  return a + b;
+function parseAsInt(val: string) {
+  return parseInt(val, 10);
 }
 
-// Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
-if (import.meta.main) {
-  console.log("Add 2 + 3 =", add(2, 3));
+const fileContent: string = Deno.readTextFileSync("./input.txt").trimEnd();
+
+const regex = /mul\((\d+),(\d+)\)/gm;
+
+let total = 0;
+for (const match of fileContent.matchAll(regex)) {
+  const firstNum = parseAsInt(match[1]);
+  const secondNum = parseAsInt(match[2]);
+  total += firstNum * secondNum;
+
 }
+console.log(total)
