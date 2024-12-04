@@ -26,16 +26,35 @@ for (
     const character = chars[horizontalIdx];
 
     if (character === "X") {
-      if (
+      console.log(lines[verticalIdx][horizontalIdx])
+      if ( // <----
         chars[horizontalIdx - 1] === "M" &&
         chars[horizontalIdx - 2] === "A" &&
         chars[horizontalIdx - 3] === "S"
       ) {
         nbOccurrences++;
-      } else if (
+      } else if ( // ---->
         chars[horizontalIdx + 1] === "M" &&
         chars[horizontalIdx + 2] === "A" &&
         chars[horizontalIdx + 3] === "S"
+      ) {
+        nbOccurrences++;
+      } else if ( // /\
+        lines[verticalIdx - 1]?.[horizontalIdx] === "M" &&
+        lines[verticalIdx - 2]?.[horizontalIdx] === "A" &&
+        lines[verticalIdx - 3]?.[horizontalIdx] === "S"
+      ) {
+        nbOccurrences++;
+      } else if ( // \/
+        lines[verticalIdx + 1]?.[horizontalIdx] === "M" &&
+        lines[verticalIdx + 2]?.[horizontalIdx] === "A" &&
+        lines[verticalIdx + 3]?.[horizontalIdx] === "S"
+      ) {
+        nbOccurrences++;
+      } else if (
+        lines[verticalIdx + 1]?.[horizontalIdx] === "M" &&
+        lines[verticalIdx + 2]?.[horizontalIdx] === "A" &&
+        lines[verticalIdx + 3]?.[horizontalIdx] === "S"
       ) {
         nbOccurrences++;
       }
