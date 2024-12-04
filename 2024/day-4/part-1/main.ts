@@ -5,10 +5,13 @@ assert(import.meta.dirname);
 
 const filePath = joinPath(import.meta.dirname, "..", "input.txt");
 const fileContent: string = Deno.readTextFileSync(filePath).trimEnd();
+const lines = fileContent.split("\n");
+
+function getLetter(x: number, y: number): string | undefined {
+  return lines[y]?.[x];
+}
 
 let nbOccurrences = 0;
-
-const lines = fileContent.split("\n");
 for (
   let verticalIdx = 0;
   verticalIdx < lines.length;
@@ -25,7 +28,6 @@ for (
     const character = chars[horizontalIdx];
 
     if (character === "X") {
-      console.log(lines[verticalIdx][horizontalIdx]);
       if (
         // Horizontal
         (
@@ -38,8 +40,11 @@ for (
           chars[horizontalIdx + 3] === "S"
         )
       ) {
+        console.log('horitonal')
         nbOccurrences++;
-      } else if (
+      }
+
+      if (
         // Vertical
         (
           lines[verticalIdx - 1]?.[horizontalIdx] === "M" &&
@@ -51,8 +56,11 @@ for (
           lines[verticalIdx + 3]?.[horizontalIdx] === "S"
         )
       ) {
+        console.log("vertical")
         nbOccurrences++;
-      } else if (
+      }
+
+      if (
         // Diagonal \
         (
           lines[verticalIdx - 1]?.[horizontalIdx - 1] === "M" &&
@@ -64,8 +72,11 @@ for (
           lines[verticalIdx + 3]?.[horizontalIdx + 3] === "S"
         )
       ) {
+        console.log("diagonal \\")
         nbOccurrences++;
-      } else if (
+      }
+
+      if (
         // Diagonal /
         (
           lines[verticalIdx - 1]?.[horizontalIdx + 1] === "M" &&
@@ -77,6 +88,7 @@ for (
           lines[verticalIdx + 3]?.[horizontalIdx - 3] === "S"
         )
       ) {
+        console.log("diagonal /")
         nbOccurrences++;
       }
     }
