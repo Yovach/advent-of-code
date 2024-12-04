@@ -29,66 +29,75 @@ for (
 
     if (character === "X") {
       if (
-        // Horizontal
-        (
-          chars[horizontalIdx - 1] === "M" &&
-          chars[horizontalIdx - 2] === "A" &&
-          chars[horizontalIdx - 3] === "S"
-        ) || (
-          chars[horizontalIdx + 1] === "M" &&
-          chars[horizontalIdx + 2] === "A" &&
-          chars[horizontalIdx + 3] === "S"
-        )
+        // Horizontal R-L
+        getLetter(horizontalIdx - 1, verticalIdx) === "M" &&
+        getLetter(horizontalIdx - 2, verticalIdx) === "A" &&
+        getLetter(horizontalIdx - 3, verticalIdx) === "S"
       ) {
-        console.log('horitonal')
         nbOccurrences++;
       }
 
       if (
-        // Vertical
-        (
-          lines[verticalIdx - 1]?.[horizontalIdx] === "M" &&
-          lines[verticalIdx - 2]?.[horizontalIdx] === "A" &&
-          lines[verticalIdx - 3]?.[horizontalIdx] === "S"
-        ) || (
-          lines[verticalIdx + 1]?.[horizontalIdx] === "M" &&
-          lines[verticalIdx + 2]?.[horizontalIdx] === "A" &&
-          lines[verticalIdx + 3]?.[horizontalIdx] === "S"
-        )
+        // Horizontal L-R
+        getLetter(horizontalIdx + 1, verticalIdx) === "M" &&
+        getLetter(horizontalIdx + 2, verticalIdx) === "A" &&
+        getLetter(horizontalIdx + 3, verticalIdx) === "S"
       ) {
-        console.log("vertical")
         nbOccurrences++;
       }
 
       if (
-        // Diagonal \
-        (
-          lines[verticalIdx - 1]?.[horizontalIdx - 1] === "M" &&
-          lines[verticalIdx - 2]?.[horizontalIdx - 2] === "A" &&
-          lines[verticalIdx - 3]?.[horizontalIdx - 3] === "S"
-        ) || (
-          lines[verticalIdx + 1]?.[horizontalIdx + 1] === "M" &&
-          lines[verticalIdx + 2]?.[horizontalIdx + 2] === "A" &&
-          lines[verticalIdx + 3]?.[horizontalIdx + 3] === "S"
-        )
+        // Vertical B-T
+        getLetter(horizontalIdx, verticalIdx - 1) === "M" &&
+        getLetter(horizontalIdx, verticalIdx - 2) === "A" &&
+        getLetter(horizontalIdx, verticalIdx - 3) === "S"
       ) {
-        console.log("diagonal \\")
         nbOccurrences++;
       }
 
       if (
-        // Diagonal /
-        (
-          lines[verticalIdx - 1]?.[horizontalIdx + 1] === "M" &&
-          lines[verticalIdx - 2]?.[horizontalIdx + 2] === "A" &&
-          lines[verticalIdx - 3]?.[horizontalIdx + 3] === "S"
-        ) || (
-          lines[verticalIdx + 1]?.[horizontalIdx - 1] === "M" &&
-          lines[verticalIdx + 2]?.[horizontalIdx - 2] === "A" &&
-          lines[verticalIdx + 3]?.[horizontalIdx - 3] === "S"
-        )
+        // Vertical T-B
+        getLetter(horizontalIdx, verticalIdx + 1) === "M" &&
+        getLetter(horizontalIdx, verticalIdx + 2) === "A" &&
+        getLetter(horizontalIdx, verticalIdx + 3) === "S"
       ) {
-        console.log("diagonal /")
+        nbOccurrences++;
+      }
+
+      if (
+        // Diagonal TL-BR
+        getLetter(horizontalIdx + 1, verticalIdx + 1) === "M" &&
+        getLetter(horizontalIdx + 2, verticalIdx + 2) === "A" &&
+        getLetter(horizontalIdx + 3, verticalIdx + 3) === "S"
+      ) {
+        nbOccurrences++;
+      }
+
+
+      if (
+        // Diagonal BR-TL
+        getLetter(horizontalIdx - 1, verticalIdx - 1) === "M" &&
+        getLetter(horizontalIdx - 2, verticalIdx - 2) === "A" &&
+        getLetter(horizontalIdx - 3, verticalIdx - 3) === "S"
+      ) {
+        nbOccurrences++;
+      }
+
+      if (
+        // Diagonal BL-TR
+        getLetter(horizontalIdx + 1, verticalIdx - 1) === "M" &&
+        getLetter(horizontalIdx + 2, verticalIdx - 2) === "A" &&
+        getLetter(horizontalIdx + 3, verticalIdx - 3) === "S"
+      ) {
+        nbOccurrences++;
+      }
+
+      if (
+        // Diagonal TR-BL
+        getLetter(horizontalIdx - 1, verticalIdx + 1) === "M" &&
+        getLetter(horizontalIdx - 2, verticalIdx + 2) === "A" &&
+        getLetter(horizontalIdx - 3, verticalIdx + 3) === "S"
+      ) {
         nbOccurrences++;
       }
     }
