@@ -11,32 +11,31 @@ let nbOccurrences = 0;
 
 const lines = fileContent.split("\n");
 for (
-  let verticalIdx = 0, nbLines = lines.length;
-  verticalIdx < nbLines;
+  let verticalIdx = 0;
+  verticalIdx < lines.length;
   verticalIdx++
 ) {
   const line = lines[verticalIdx];
 
-  const characters = line.split("");
-
+  const chars = line.split("");
   for (
-    let horizontalIdx = 0, nbChars = characters.length;
-    horizontalIdx < nbChars;
+    let horizontalIdx = 0;
+    horizontalIdx < chars.length;
     horizontalIdx++
   ) {
-    const character = characters[horizontalIdx];
+    const character = chars[horizontalIdx];
 
     if (character === "X") {
       if (
-        characters[horizontalIdx - 1] === "M" &&
-        characters[horizontalIdx - 2] === "A" &&
-        characters[horizontalIdx - 3] === "S"
+        chars[horizontalIdx - 1] === "M" &&
+        chars[horizontalIdx - 2] === "A" &&
+        chars[horizontalIdx - 3] === "S"
       ) {
         nbOccurrences++;
       } else if (
-        characters[horizontalIdx + 1] === "M" &&
-        characters[horizontalIdx + 2] === "A" &&
-        characters[horizontalIdx + 3] === "S"
+        chars[horizontalIdx + 1] === "M" &&
+        chars[horizontalIdx + 2] === "A" &&
+        chars[horizontalIdx + 3] === "S"
       ) {
         nbOccurrences++;
       }
