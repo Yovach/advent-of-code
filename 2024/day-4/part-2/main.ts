@@ -5,8 +5,7 @@ assert(import.meta.dirname);
 
 const filePath = joinPath(import.meta.dirname, "..", "input.txt");
 const fileContent: string = Deno.readTextFileSync(filePath)
-  .trimEnd()
-  .replaceAll("X", ".");
+  .trimEnd();
 
 const lines = fileContent.split("\n");
 
@@ -25,31 +24,26 @@ for (
   verticalIdx++
 ) {
   const line = lines[verticalIdx];
-
-  const chars = line.split("");
   for (
     let horizontalIdx = 0;
-    horizontalIdx < chars.length;
+    horizontalIdx < line.length;
     horizontalIdx++
   ) {
-    const character = chars[horizontalIdx];
-
-    if (character === "A") {
+    if (line[horizontalIdx] === "A") {
       let foundXMas = 0;
 
       for (let idx = 0; idx < directions.length; idx++) {
         const [x, y] = directions[idx];
+        
         const letter = getLetter(horizontalIdx + x, verticalIdx + y);
         if (letter === "M") {
+          // Si on ne trouve pas la direction, le programme doit crash
           const oppositeCoordinates = directions.at(
             (directions.length - 1) - idx,
           );
-          if (oppositeCoordinates === undefined) {
-            continue;
-          }
+          assert(oppositeCoordinates);
 
           const [oppositeX, oppositeY] = oppositeCoordinates;
-
           const oppositeLetter = getLetter(
             horizontalIdx + oppositeX,
             verticalIdx + oppositeY,
@@ -68,4 +62,3 @@ for (
 }
 
 console.log({ nbOccurrences });
-Deno.writeTextFile("./output.txt", lines.join("\n"));
