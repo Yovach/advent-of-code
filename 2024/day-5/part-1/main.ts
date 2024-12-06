@@ -16,7 +16,8 @@ const filePath = joinPath(import.meta.dirname, "..", "input.txt");
 const lines: string[] = Deno
   .readTextFileSync(filePath)
   .trimEnd()
-  .split("\n").filter((line) => line.length > 0);
+  .split("\n")
+  .filter((line) => line.length > 0);
 
 const pageOrderingRules: PageOrderingRule[] = [];
 
@@ -57,9 +58,15 @@ for (const line of lines) {
     const updates = line.split(",").map(parseAsInt);
     const isValid = areUpdatesRightOrder(updates);
     if (isValid) {
-      const middleNumberIndex = Math.floor(updates.length / 2);
+      let middleNumberIndex = updates.length / 2;
+      if (Number.isInteger(middleNumberIndex)) {
+        middleNumberIndex -= 1;
+      } else {
+        middleNumberIndex = Math.floor(middleNumberIndex)
+      }
       const middleNumber = updates.at(middleNumberIndex);
       assert(middleNumber);
+      
       total += middleNumber;
     }
   }
