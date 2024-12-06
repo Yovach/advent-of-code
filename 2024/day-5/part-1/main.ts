@@ -23,17 +23,16 @@ const pageOrderingRules: PageOrderingRule[] = [];
 function isUpdateBefore(before: number, after: number): boolean | undefined {
   if (
     pageOrderingRules.some((rule) =>
-      rule.before === before && rule.after === after
+      rule.before === after && rule.after === before
     )
   ) {
-    return true;
+    return false;
   }
 
-  return undefined;
+  return true;
 }
 
-function areUpdatesRightOrder(updates: number[]) {
-  console.log('analyse', updates)
+function areUpdatesRightOrder(updates: number[]): boolean {
   for (let idx = 0; idx < updates.length; idx++) {
     const update = updates.at(idx);
     assert(update);
@@ -44,21 +43,26 @@ function areUpdatesRightOrder(updates: number[]) {
       }
     }
   }
-  
+
   return true;
 }
 
+let total = 0;
 for (const line of lines) {
   if (line.includes("|")) {
     // Page ordering rules
-    console.log(line);
     const [before, after] = line.split("|").map(parseAsInt);
     pageOrderingRules.push({ before, after });
-
-    console.log(`before: ${before}, after: ${after}`);
   } else if (line.includes(",")) {
     const updates = line.split(",").map(parseAsInt);
-    console.log({ updates, isValid: areUpdatesRightOrder(updates) });
+    const isValid = areUpdatesRightOrder(updates);
+    if (isValid) {
+      const middleNumberIndex = Math.floor(updates.length / 2);
+      const middleNumber = updates.at(middleNumberIndex);
+      assert(middleNumber);
+      total += middleNumber;
+    }
   }
-  console.log("\n NEXT \n")
 }
+
+console.log(total);
