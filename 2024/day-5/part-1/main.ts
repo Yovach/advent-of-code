@@ -20,17 +20,21 @@ const lines: string[] = Deno
   .filter((line) => line.length > 0);
 
 const pageOrderingRules: PageOrderingRule[] = [];
+const pageOrderingRulesCache: Map<string, boolean> = new Map();
 
 function isUpdateBefore(before: number, after: number): boolean | undefined {
-  if (
-    pageOrderingRules.some((rule) =>
-      rule.before === after && rule.after === before
-    )
-  ) {
-    return false;
+  const cachedKey = `${before}<${after}`;
+
+  if (pageOrderingRulesCache.has(cachedKey)) {
+    return pageOrderingRulesCache.get(cachedKey);
   }
 
-  return true;
+  const value = false === pageOrderingRules.some((rule) =>
+    rule.before === after && rule.after === before
+  );
+  pageOrderingRulesCache.set(cachedKey, value);
+
+  return value;
 }
 
 function areUpdatesRightOrder(updates: number[]): boolean {
@@ -62,11 +66,11 @@ for (const line of lines) {
       if (Number.isInteger(middleNumberIndex)) {
         middleNumberIndex -= 1;
       } else {
-        middleNumberIndex = Math.floor(middleNumberIndex)
+        middleNumberIndex = Math.floor(middleNumberIndex);
       }
       const middleNumber = updates.at(middleNumberIndex);
       assert(middleNumber);
-      
+
       total += middleNumber;
     }
   }
