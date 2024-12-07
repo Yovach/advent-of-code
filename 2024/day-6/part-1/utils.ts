@@ -52,7 +52,10 @@ function getNextPosition(player: Player): [x: number, y: number] {
   throw new Error("Invalid player direction");
 }
 
-function canMoveForward(mapGrid: GridCell[], player: Player): boolean {
+function canMoveForward(
+  mapGrid: GridCell[],
+  player: Player,
+): boolean | undefined {
   const [x, y] = getNextPosition(player);
   const nextGrid = mapGrid.find((grid) => grid.x === x && grid.y === y);
   if (!nextGrid) {
