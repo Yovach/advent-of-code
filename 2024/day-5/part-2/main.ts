@@ -61,14 +61,22 @@ for (const line of lines) {
   } else if (line.includes(",")) {
     const updates = line.split(",").map(parseAsInt);
     const isValid = areUpdatesRightOrder(updates);
-    if (isValid) {
-      let middleNumberIndex = updates.length / 2;
+    if (false === isValid) {
+      const sortedUpdates = updates.toSorted((prev, curr) => {
+        if (false === isUpdateBefore(prev, curr)) {
+          return 1;
+        }
+
+        return -1;
+      });
+
+      let middleNumberIndex = sortedUpdates.length / 2;
       if (Number.isInteger(middleNumberIndex)) {
         middleNumberIndex -= 1;
       } else {
         middleNumberIndex = Math.floor(middleNumberIndex);
       }
-      const middleNumber = updates.at(middleNumberIndex);
+      const middleNumber = sortedUpdates.at(middleNumberIndex);
       assert(middleNumber);
 
       total += middleNumber;
