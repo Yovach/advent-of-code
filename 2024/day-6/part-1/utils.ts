@@ -68,6 +68,11 @@ function canMoveForward(
 export function moveForwardUntilStuck(mapGrid: GridCell[], player: Player) {
   let isStuck = false;
 
+  const nextGrid = mapGrid.find((grid) => grid.x === player.x && grid.y === player.y);
+  if (nextGrid) {
+    nextGrid.visited = true;
+  }
+
   let canMove;
   do {
     canMove = canMoveForward(mapGrid, player);
