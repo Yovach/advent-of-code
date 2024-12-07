@@ -1,11 +1,14 @@
 import { join as joinPath } from "@std/path";
 import { assert } from "@std/assert";
+import { getMapFromFile } from "./utils.ts";
 
 assert(import.meta.dirname);
 
-const filePath = joinPath(import.meta.dirname, "..", "input.txt");
-const lines: string[] = Deno
+const filePath: string = joinPath(import.meta.dirname, "..", "input.txt");
+const fileContent = Deno
   .readTextFileSync(filePath)
-  .trimEnd()
-  .split("\n")
-  .filter((line) => line.length > 0);
+  .trimEnd();
+
+const mapGrid: string[][] = getMapFromFile(fileContent);
+
+console.log(mapGrid);
