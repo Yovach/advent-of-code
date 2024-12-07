@@ -1,6 +1,6 @@
-import { join as joinPath } from "@std/path";
 import { assert } from "@std/assert";
-import { getMapFromFile } from "./utils.ts";
+import { join as joinPath } from "@std/path";
+import { getInitialPlayerPosition, getMapFromFile, GridCell } from "./utils.ts";
 
 assert(import.meta.dirname);
 
@@ -9,6 +9,11 @@ const fileContent = Deno
   .readTextFileSync(filePath)
   .trimEnd();
 
-const mapGrid: string[][] = getMapFromFile(fileContent);
+const mapGrid: GridCell[] = getMapFromFile(fileContent);
+const initialPosition = getInitialPlayerPosition(mapGrid);
+console.log(mapGrid, initialPosition);
 
-console.log(mapGrid);
+// let isStuck = false;
+// while (!isStuck) {
+
+// }
