@@ -12,8 +12,5 @@ const fileContent = Deno
 const { grid, player } = getGridFromFile(fileContent);
 assert(player);
 
-console.log(grid, player);
-
 const visitedDistricts = moveForwardUntilStuck(grid, player);
-
 console.log(visitedDistricts.length);

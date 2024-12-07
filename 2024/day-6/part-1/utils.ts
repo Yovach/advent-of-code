@@ -18,6 +18,7 @@ export type GridCell = {
   y: number;
   type: CellType;
   isInitialStart: boolean;
+  visited: boolean;
 };
 
 const CELL_TYPE_MAPPING = Object.freeze({
@@ -67,8 +68,6 @@ function canMoveForward(
 export function moveForwardUntilStuck(mapGrid: GridCell[], player: Player) {
   let isStuck = false;
 
-  const visitedDistricts: { x: number; y: number }[] = [];
-
   let canMove;
   do {
     canMove = canMoveForward(mapGrid, player);
@@ -82,18 +81,14 @@ export function moveForwardUntilStuck(mapGrid: GridCell[], player: Player) {
       player.x = nextX;
       player.y = nextY;
 
-      if (
-        !visitedDistricts.some((district) => district.x === nextX && district.y === nextY)
-      ) {
-        visitedDistricts.push({
-          x: nextX,
-          y: nextX,
-        });
+      const nextGrid = mapGrid.find((grid) => grid.x === nextX && grid.y === nextY);
+      if (nextGrid) {
+        nextGrid.visited = true;
       }
     }
   } while (isStuck === false);
 
-  return visitedDistricts;
+  return mapGrid.filter((g) => g.visited === true);
 }
 
 function rotate(player: Player): Player["direction"] {
@@ -154,6 +149,7 @@ export function getGridFromFile(
         y,
         type,
         isInitialStart,
+        visited: false
       });
     }
   }
