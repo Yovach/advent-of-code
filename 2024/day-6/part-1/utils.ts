@@ -17,6 +17,7 @@ export type GridCell = {
   x: number;
   y: number;
   type: CellType;
+  isInitialStart: boolean;
 };
 
 const CELL_TYPE_MAPPING = Object.freeze({
@@ -31,7 +32,7 @@ const PLAYER_DIRECTION = Object.freeze({
   "<": Direction.WEST,
 });
 
-type Player = {
+export type Player = {
   x: number;
   y: number;
   direction: keyof typeof PLAYER_DIRECTION;
@@ -61,16 +62,22 @@ function canMoveForward(mapGrid: GridCell[], player: Player): boolean {
 }
 
 export function moveForward(mapGrid: GridCell[], player: Player) {
+  console.log(player);
   let canMove;
   do {
-    if (canMove === undefined || canMove === false) {
-      canMove = canMoveForward(mapGrid, player);
+    canMove = canMoveForward(mapGrid, player);
 
-      if (!canMove) {
-        player.direction = rotate(player);
-      }
+    if (!canMove) {
+      player.direction = rotate(player);
     }
-  } while (canMove !== true);
+
+    const [nextX, nextY] = getNextPosition(player);
+    player.x = nextX;
+    player.y = nextY;
+    console.log(player);
+  } while (canMove === true);
+
+  return true;
 }
 
 function rotate(player: Player): Player["direction"] {
@@ -94,10 +101,12 @@ function rotate(player: Player): Player["direction"] {
   return direction;
 }
 
-export function getMapFromFile(fileContent: string): GridCell[] {
+export function getGridFromFile(
+  fileContent: string,
+): { grid: GridCell[]; player: Player | null } {
   const mapGrid: GridCell[] = [];
   const lines = fileContent.split("\n");
-  console.log(lines);
+  let player: Player | null = null;
   for (let y = 0; y < lines.length; y++) {
     const line = lines.at(y);
     assert(line);
@@ -106,11 +115,21 @@ export function getMapFromFile(fileContent: string): GridCell[] {
       const char = line.at(x);
       assert(char);
 
+      let isInitialStart = false;
       let type: CellType;
       if (Object.hasOwn(CELL_TYPE_MAPPING, char)) {
         type = CELL_TYPE_MAPPING[char as keyof typeof CELL_TYPE_MAPPING];
       } else {
-        type = CellType.PLAYER;
+        assert(Object.keys(PLAYER_DIRECTION).includes(char));
+
+        type = CellType.EMPTY;
+        isInitialStart = true;
+
+        player = {
+          x,
+          y,
+          direction: char as Player["direction"],
+        };
       }
       assert(type);
 
@@ -118,15 +137,14 @@ export function getMapFromFile(fileContent: string): GridCell[] {
         x,
         y,
         type,
+        isInitialStart,
       });
     }
   }
 
-  return mapGrid;
+  return { grid: mapGrid, player };
 }
 
 export function getInitialPlayerPosition(mapGrid: GridCell[]) {
-  return mapGrid.find((val) =>
-    val.type !== CellType.EMPTY && val.type !== CellType.OBSTACLE
-  );
+  return mapGrid.find((val) => val.isInitialStart === true);
 }
