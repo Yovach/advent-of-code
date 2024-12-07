@@ -1,9 +1,6 @@
 import { assert } from "@std/assert";
 import { join as joinPath } from "@std/path";
-import {
-  getGridFromFile,
-  moveForward
-} from "./utils.ts";
+import { getGridFromFile, moveForwardUntilStuck } from "./utils.ts";
 
 assert(import.meta.dirname);
 
@@ -17,10 +14,6 @@ assert(player);
 
 console.log(grid, player);
 
-let nbDistinctPositions = 0;
-let isStuck = false;
-while (!isStuck) {
-  isStuck = moveForward(grid, player);
-}
+const visitedDistricts = moveForwardUntilStuck(grid, player);
 
-console.log(nbDistinctPositions)
+console.log(visitedDistricts.length);

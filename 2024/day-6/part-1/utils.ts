@@ -56,28 +56,41 @@ function canMoveForward(mapGrid: GridCell[], player: Player): boolean {
   const [x, y] = getNextPosition(player);
   const nextGrid = mapGrid.find((grid) => grid.x === x && grid.y === y);
   if (!nextGrid) {
-    return false;
+    return undefined;
   }
   return nextGrid.type === CellType.EMPTY;
 }
 
-export function moveForward(mapGrid: GridCell[], player: Player) {
-  console.log(player);
+export function moveForwardUntilStuck(mapGrid: GridCell[], player: Player) {
+  let isStuck = false;
+
+  const visitedDistricts: { x: number; y: number }[] = [];
+
   let canMove;
   do {
     canMove = canMoveForward(mapGrid, player);
 
-    if (!canMove) {
+    if (canMove === false) {
       player.direction = rotate(player);
+    } else if (canMove === undefined) {
+      isStuck = true;
+    } else {
+      const [nextX, nextY] = getNextPosition(player);
+      player.x = nextX;
+      player.y = nextY;
+
+      if (
+        !visitedDistricts.some((district) => district.x === nextX && district.y === nextY)
+      ) {
+        visitedDistricts.push({
+          x: nextX,
+          y: nextX,
+        });
+      }
     }
+  } while (isStuck === false);
 
-    const [nextX, nextY] = getNextPosition(player);
-    player.x = nextX;
-    player.y = nextY;
-    console.log(player);
-  } while (canMove === true);
-
-  return true;
+  return visitedDistricts;
 }
 
 function rotate(player: Player): Player["direction"] {
